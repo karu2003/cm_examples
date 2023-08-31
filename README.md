@@ -1,8 +1,5 @@
 # Example OOT project for Dev Board Micro
 
-This is a "Hello World" out-of-tree project for the [Coral Dev Board
-Micro](https://coral.ai/products/dev-board-micro).
-
 This serves as a starting point for your own
 Dev Board Micro projects when you want your project to live outside the 
 [coralmicro](https://github.com/google-coral/coralmicro) tree, rather than inside it.
@@ -16,13 +13,13 @@ which requires about 2.5 GB.
 ## 1. Clone this project and submodules
 
 ```bash
-git clone --recurse-submodules -j8 https://github.com/google-coral/coralmicro-out-of-tree-sample
+git clone --recurse-submodules -j8 https://github.com/karu2003/cm_examples
 ```
 
 ## 2. Build the project
 
 ```bash
-cd coralmicro-out-of-tree-sample
+cd cm_examples
 
 cmake -B out -S .
 
@@ -36,7 +33,7 @@ To maximize your CPU usage, replace `-j8` with either `-j$(nproc)` on Linux or
 ## 3. Flash it to your board
 
 ```bash
-python3 coralmicro/scripts/flashtool.py --build_dir out --elf_path out/coralmicro-app
+python3 coralmicro/scripts/flashtool.py --build_dir out --elf_path out/xxx/xxx
 ```
 
 Anytime you make changes to the code, rebuild it with the `make` command and flash it again.
