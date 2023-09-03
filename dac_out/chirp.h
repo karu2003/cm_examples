@@ -62,18 +62,18 @@ inline uint16_t chirpGen(float fSamp, float duration, float start_freq,
   return nSamp;
 }
 
-inline float _lchirp(uint16_t N, float tmin, float tmax, float fmin, float fmax,
-                     float **phi) {
-  float a, b;
-  linspace(tmin, tmax, N, &phi);
+// inline float _lchirp(uint16_t N, float tmin, float tmax, float fmin, float fmax,
+//                      float **phi) {
+//   float a, b;
+//   linspace(tmin, tmax, N, &phi);
 
-  a = (fmin - fmax) / (tmin - tmax);
-  b = (fmin * tmax - fmax * tmin) / (tmax - tmin);
+//   a = (fmin - fmax) / (tmin - tmax);
+//   b = (fmin * tmax - fmax * tmin) / (tmax - tmin);
 
-  phi = (a / 2) * (pow(t, 2) - pow(tmin, 2)) + b * (t - tmin);
-  phi *= (2 * pi);
-  return
-}
+//   phi = (a / 2) * (pow(t, 2) - pow(tmin, 2)) + b * (t - tmin);
+//   phi *= (2 * pi);
+//   return
+// }
 
 // inline void lchirp(N, tmin = 0, tmax = 1, fmin = 0, fmax = None,
 //                    zero_phase_tmin = True, cos = True)
