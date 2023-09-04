@@ -43,11 +43,13 @@ static uint16_t val = 0;
 #define DAC_BIT (float)12.
 #define DAC_MAX 4095
 #define DAC_OFF 2047.5
-#define SAMLERATE 50000.
+#define SAMLERATE 200000.
 #define SAMLE_COUNT int((1 / SAMLERATE) * 1000000)
 #define LED_TIME int(1 * 1000000)
 static float fSamp = SAMLERATE;
-static float duration = 0.01;
+static float duration = 0.001;
+static float f0 = 18000.0;
+static float f1 = 34000.0;
 
 [[noreturn]] void Main() {
   uint16_t *waveform;
@@ -76,9 +78,9 @@ static float duration = 0.01;
   DacEnable(true);
   // nSamp = genSampTbl (freq, fSamp, 1.0, 0, &waveform);
 
-  nSamp = chirpGen(fSamp, duration, 500., 5000., 1., 0., &chirpform);
+  nSamp = chirpGen(fSamp, duration, f0, f1, 1., 0., &chirpform);
 
-  // nSamp = lchirp(fSamp, duration, 500., 5000., &chirpform_F);
+  // nSamp = lchirp(fSamp, duration, f0, f1, &chirpform_F);
   // chirpform = new uint16_t[nSamp];
   // for (int i = 0; i < nSamp; i++) {
   //   (chirpform)[i] = (uint16_t)(DAC_OFF + DAC_OFF *(chirpform_F)[i]);
