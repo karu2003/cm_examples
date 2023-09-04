@@ -52,6 +52,7 @@ static float duration = 0.01;
 [[noreturn]] void Main() {
   uint16_t *waveform;
   uint16_t *chirpform;
+  float *chirpform_F;
   uint16_t *chirpform_L;
   float *nLinspace;
   uint16_t nSamp;
@@ -73,50 +74,39 @@ static float duration = 0.01;
   DacInit();
   DacWrite(0);
   DacEnable(true);
-  //   nSamp = genSampTbl (freq, fSamp, 1.0, 0, &waveform);
+  // nSamp = genSampTbl (freq, fSamp, 1.0, 0, &waveform);
+
   nSamp = chirpGen(fSamp, duration, 500., 5000., 1., 0., &chirpform);
-  // linspace(500., 5000., nSamp, &nLinspace);
-  // lchirp(nSamp, 0.,duration, 7000.,17000.,1.0,&nLinspace);
 
+  // nSamp = lchirp(fSamp, duration, 500., 5000., &chirpform_F);
+  // chirpform = new uint16_t[nSamp];
   // for (int i = 0; i < nSamp; i++) {
-  //   (nLinspace)[i] = (nLinspace)[i] * 2.0 * pi;
-  // }
-
-  // for (int i = 0; i < nSamp; i++) {
-  //   (nLinspace)[i] = (nLinspace)[i] + ((nLinspace)[i+1]-(nLinspace)[i]);
-  // }
-
-  // for (int i = 0; i < nSamp; i++) {
-  //   (nLinspace)[i] = fmod((nLinspace)[i], (2.0 * pi));
-  // }
-
-  // chirpform_L = new uint16_t[nSamp];
-  // for (int i = 0; i < nSamp; i++) {
-  //   (chirpform_L)[i] = (uint16_t)(DAC_OFF + DAC_OFF * sin((nLinspace)[i]));
+  //   (chirpform)[i] = (uint16_t)(DAC_OFF + DAC_OFF *(chirpform_F)[i]);
   // }
 
   while (true) {
-    vTaskSuspend(nullptr);
+    // vTaskSuspend(nullptr);
     // dispTable_F(chirpform,nSamp,k);
     // serial_Plot_F(nLinspace, nSamp);
-    serial_Plot_U(chirpform,nSamp);
+    // serial_Plot_U(chirpform,nSamp);
+    // serial_Plot_F(chirpform_F,nSamp);
     // dispTable (waveform, nSamp, s);
-    // if (TimerMicros() - lastMicros >= SAMLE_COUNT) {
-    //     lastMicros = TimerMicros();
-    //     // DacWrite(waveform[nStep]);
-    //     DacWrite(chirpform[nStep]);
-    //     nStep = nStep +1;
-    //     if (nStep >= nSamp) {
-    //         nStep = 0;
-    //     }
-    // }
-    // if (TimerMicros() - lastMicros_Led >= LED_TIME) {
-    //     lastMicros_Led = TimerMicros();
-    //     on = !on;
-    //     LedSet(Led::kUser, on);
-    //     printf("nSamp: %d\r\n", nSamp);
-    //     printf("LED: %s\r\n", on ? "on" : "off");
-    // }
+    if (TimerMicros() - lastMicros >= SAMLE_COUNT) {
+        lastMicros = TimerMicros();
+        // DacWrite(waveform[nStep]);
+        DacWrite(chirpform[nStep]);
+        nStep = nStep +1;
+        if (nStep >= nSamp) {
+            nStep = 0;
+        }
+    }
+    if (TimerMicros() - lastMicros_Led >= LED_TIME) {
+        lastMicros_Led = TimerMicros();
+        on = !on;
+        LedSet(Led::kUser, on);
+        printf("nSamp: %d\r\n", nSamp);
+        printf("LED: %s\r\n", on ? "on" : "off");
+    }
   }
 }
 // [end-sphinx-snippet:dac_out]

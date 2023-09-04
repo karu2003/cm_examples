@@ -49,7 +49,7 @@ inline uint16_t chirpGen(float fSamp, float duration, float start_freq,
   nSamp = lrint(duration * fSamp);
   *chirpform = new uint16_t[nSamp];
   current_phase = phase;
-  instantaneous_w = w0;
+  // instantaneous_w = w0;
 
   for (i = 0; i < nSamp; i++) {
     (*chirpform)[i] =
@@ -58,29 +58,23 @@ inline uint16_t chirpGen(float fSamp, float duration, float start_freq,
     instantaneous_w = linear_freq_func(w0, w1, (1.0 * i) / nSamp);
     current_phase = fmod((current_phase + instantaneous_w), 2.0 * pi);
   }
-//   phi *= ( (phi[-1] - phi[-1] % (2*np.pi)) / phi[-1] )
+  //   phi *= ( (phi[-1] - phi[-1] % (2*np.pi)) / phi[-1] )
   return nSamp;
 }
 
-// inline float _lchirp(uint16_t N, float tmin, float tmax, float fmin, float fmax,
-//                      float **phi) {
-//   float a, b;
-//   linspace(tmin, tmax, N, &phi);
-
-//   a = (fmin - fmax) / (tmin - tmax);
-//   b = (fmin * tmax - fmax * tmin) / (tmax - tmin);
-
-//   phi = (a / 2) * (pow(t, 2) - pow(tmin, 2)) + b * (t - tmin);
-//   phi *= (2 * pi);
-//   return
-// }
-
-// inline void lchirp(N, tmin = 0, tmax = 1, fmin = 0, fmax = None,
-//                    zero_phase_tmin = True, cos = True)
-//     : phi = _lchirp(N, tmin, tmax, fmin, fmax) if zero_phase_tmin
-//     : phi
-//       *= ((phi[-1] - phi[-1] % (2 * np.pi)) / phi[-1]) else
-//     : phi
-//       -= (phi[-1] % (2 * np.pi)) fn = np.cos if cos else np.sin return fn(phi)
+inline uint16_t lchirp(float fSamp, float duration, float f0, float f1,
+                       float **phi) {
+  uint16_t nSamp, i;
+  float beta;
+  nSamp = lrint(duration * fSamp);
+  linspace(0, duration, nSamp, phi);
+  beta = (f1 - f0) / duration;
+  for (i = 0; i < nSamp; i++) {
+    (*phi)[i] =
+        2.0 * pi * (f0 * (*phi)[i] + 0.5 * beta * (*phi)[i] * (*phi)[i]);
+    (*phi)[i] = sin((*phi)[i]);
+  }
+  return nSamp;
+}
 
 #endif  // DAC_OUT_H_
