@@ -1,19 +1,24 @@
 // https://forums.freertos.org/t/fast-fourier-transform-kissfft-issue/14699
 // https://www.hackster.io/AlexWulff/adc-sampling-and-fft-on-raspberry-pi-pico-f883dd
 // https://github.com/AlexFWulff/awulff-pico-playground/blob/main/adc_fft/adc_fft.c
-#include "third_party/kissfft/kiss_fft.h"
-// #include "kiss_fftnd.h"
-// #include "kiss_fftndr.h"
-// #include "kiss_fftr.h"
+
+#include <cstdio>
+
+#include "libs/base/gpio.h"
+#include "test_signal.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
-// #include "random.h"
+#include "kiss_fft.h"
+#include "tools/kiss_fftr.h"
 
-# define NSAMP 1024
+#define DAC_OFF 2047.5
+
+namespace coralmicro {
+namespace {
 
 void do_fft(kiss_fft_cpx *in, kiss_fft_cpx *out, int direction) {
   kiss_fft_cfg cfg;
-  printf("fft\n\r");
+  // printf("fft\n\r");
   /* solution 1
    if (direction==0) kfc_fft(N,in,out);
      else            kfc_ifft(N,in,out);
@@ -29,36 +34,55 @@ void do_fft(kiss_fft_cpx *in, kiss_fft_cpx *out, int direction) {
   printf(":%f\n\r", in[NSAMP].r);
 }
 
-int main() {
-  char pattern1[NSAMP];
-//   RandomGenerate(pattern1,NSAMP);
-  kiss_fft_cpx *in, *out1;//, *out2, *outm;
-  int k;
-//   in = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
-//   out1 = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
-//   out2 = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
-//   outm = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
-  in = new kiss_fft_cpx[NSAMP];
-  out1 = new kiss_fft_cpx[NSAMP];
-//   out2 = new kiss_fft_cpx[NSAMP];
-//   outm = new kiss_fft_cpx[NSAMP];
-  
+extern "C" [[noreturn]] void app_main(void *param) {
+  extern float pattern1[];
+  float freqs[NSAMP];
+  kiss_fft_cpx *fft_in;
+  kiss_fft_cpx *fft_out;
+  int i, k;
+  fft_in = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
+  fft_out = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
+  // fft_in = new kiss_fft_cpx[NSAMP+1];
+  // fft_out = new kiss_fft_cpx[NSAMP+1];
+
+  GpioConfigureInterrupt(
+      Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
+      [handle = xTaskGetCurrentTaskHandle()]() { xTaskResumeFromISR(handle); },
+      /*debounce_interval_us=*/50 * 1e3);
 
   for (k = 0; k < NSAMP; k++) {
-    in[k].r = (pattern1[k] << 30);
-    in[k].i = 0;
-  }
-  for (k = 0; k < 3; k++) {
-    printf("%X:", k );
-    do_fft(in, out1, 0);
+    fft_in[k].r = DAC_OFF + DAC_OFF * pattern1[k];
+    fft_in[k].i = 0;
   }
 
-//   for (k = 0; k < N; k++) {
-//     in[k].r = (pattern2[k] << 30);
-//     in[k].i = 0;
-//   }
-//   for (k = 0; k < 3; k++) {
-//     printf("%X:", k );
-//     do_fft(in, out2, 0);
-//   }
+  while (true) {
+    vTaskSuspend(nullptr);
+    // compute power and calculate max freq component
+    for(k = 0; k < NSAMP; k++) {
+      printf("%u,%f\n\r",k, fft_in[k].r);
+      vTaskDelay(pdMS_TO_TICKS(5));
+    }
+    do_fft(fft_in, fft_out, 0);
+    float max_power = 0;
+    int max_idx = 0;
+    // any frequency bin over NSAMP/2 is aliased (nyquist sampling theorum)
+    for (i = 0; i < NSAMP / 2; i++) {
+      float power = fft_out[i].r * fft_out[i].r + fft_out[i].i * fft_out[i].i;
+      // printf("%u,%f\n\r", i, power);
+      if (power > max_power) {
+        max_power = power;
+        max_idx = i;
+      }
+    }
+
+    float max_freq = freqs[max_idx];
+    // printf("Greatest Frequency Component: %0.1f Hz\n",max_freq);
+    // for(k = 0; k < NSAMP; k++) {
+    //   printf("%u,%f\n\r",k, fft_out[k].r);
+    //   vTaskDelay(pdMS_TO_TICKS(2));
+    // }
+  }
 }
+
+}  // namespace
+}  // namespace coralmicro

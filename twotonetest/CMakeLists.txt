@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# find_package( PythonInterp 3.0 REQUIRED )
-
-add_executable_m7(mic_kissfft
-    mic_kissfft.cc
+add_executable_m7(twotonetest
+    twotonetest.cc
 )
 
-target_link_libraries(mic_kissfft
+target_link_libraries(twotonetest
     libs_base-m7_freertos
 )
