@@ -8,42 +8,41 @@
 #include "test_signal.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
-#include "kiss_fft.h"
-#include "tools/kiss_fftr.h"
+// #include "kiss_fft.h"
+#include <inttypes.h>
+
+#include "hamming.h"
+#include "kiss_fftr.h"
+#include "libs/base/timer.h"
 
 #define DAC_OFF 2047.5
 
 namespace coralmicro {
 namespace {
 
-void do_fft(kiss_fft_cpx *in, kiss_fft_cpx *out, int direction) {
-  kiss_fft_cfg cfg;
-  // printf("fft\n\r");
-  /* solution 1
-   if (direction==0) kfc_fft(N,in,out);
-     else            kfc_ifft(N,in,out);
-   kfc_cleanup();
-  */
-
-  /* solution 2 */
-  if ((cfg = kiss_fft_alloc(NSAMP, direction, NULL, NULL)) != NULL) {
-    kiss_fft(cfg, in, out);
-    kiss_fft_free(cfg);
-  } else
-    printf("FFT out of memory\n\r");
-  printf(":%f\n\r", in[NSAMP].r);
-}
+Hamming hamming_window(NSAMP);
 
 extern "C" [[noreturn]] void app_main(void *param) {
+#if FIXED_POINT == 32
+  long maxrange = LONG_MAX;
+#else
+  long maxrange = SHRT_MAX; /* works fine for float too*/
+#endif
+
+  uint64_t lastMicros;
   extern float pattern1[];
   float freqs[NSAMP];
-  kiss_fft_cpx *fft_in;
-  kiss_fft_cpx *fft_out;
   int i, k;
-  fft_in = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
-  fft_out = (kiss_fft_cpx *)malloc((NSAMP + 1) * sizeof(kiss_fft_cpx));
-  // fft_in = new kiss_fft_cpx[NSAMP+1];
-  // fft_out = new kiss_fft_cpx[NSAMP+1];
+  kiss_fft_cpx *fft_in = new kiss_fft_cpx[NSAMP];
+  kiss_fft_cpx *fft_out = new kiss_fft_cpx[NSAMP];
+
+  float heavyside_function[NSAMP];
+
+  float f_max = FSAMP;
+  float f_res = f_max / NSAMP;
+  for (int i = 0; i < NSAMP; i++) {
+    freqs[i] = f_res * i;
+  }
 
   GpioConfigureInterrupt(
       Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
@@ -51,24 +50,36 @@ extern "C" [[noreturn]] void app_main(void *param) {
       /*debounce_interval_us=*/50 * 1e3);
 
   for (k = 0; k < NSAMP; k++) {
-    fft_in[k].r = DAC_OFF + DAC_OFF * pattern1[k];
+    heavyside_function[k] = pattern1[k];
+  }
+
+  hamming_window.applyWindow(heavyside_function);
+
+  for (k = 0; k < NSAMP; k++) {
+    fft_in[k].r = (maxrange >> 1) * heavyside_function[k];
+    // fft_in[k].r = pattern1[k];
     fft_in[k].i = 0;
   }
 
   while (true) {
     vTaskSuspend(nullptr);
+    bool is_inverse_fft = false;
+    kiss_fft_cfg cfg_f = kiss_fft_alloc(NSAMP, is_inverse_fft, 0,
+                                        0);  // typedef: struct kiss_fft_state*
+
     // compute power and calculate max freq component
-    for(k = 0; k < NSAMP; k++) {
-      printf("%u,%f\n\r",k, fft_in[k].r);
-      vTaskDelay(pdMS_TO_TICKS(5));
-    }
-    do_fft(fft_in, fft_out, 0);
+    lastMicros = TimerMicros();
+    kiss_fft(cfg_f, fft_in, fft_out);
+    lastMicros = TimerMicros() - lastMicros;
+
     float max_power = 0;
     int max_idx = 0;
+
     // any frequency bin over NSAMP/2 is aliased (nyquist sampling theorum)
     for (i = 0; i < NSAMP / 2; i++) {
       float power = fft_out[i].r * fft_out[i].r + fft_out[i].i * fft_out[i].i;
-      // printf("%u,%f\n\r", i, power);
+      printf("%f,%f\n\r", freqs[i], power);
+      vTaskDelay(pdMS_TO_TICKS(8));
       if (power > max_power) {
         max_power = power;
         max_idx = i;
@@ -76,13 +87,10 @@ extern "C" [[noreturn]] void app_main(void *param) {
     }
 
     float max_freq = freqs[max_idx];
-    // printf("Greatest Frequency Component: %0.1f Hz\n",max_freq);
-    // for(k = 0; k < NSAMP; k++) {
-    //   printf("%u,%f\n\r",k, fft_out[k].r);
-    //   vTaskDelay(pdMS_TO_TICKS(2));
-    // }
+    // printf("Greatest Frequency Component: %0.1f Hz\n\r", max_freq);
+    // printf("calculation time: %lu uS\n\r",
+    // static_cast<uint32_t>(lastMicros));
   }
 }
-
 }  // namespace
 }  // namespace coralmicro

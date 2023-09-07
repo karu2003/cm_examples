@@ -13,7 +13,9 @@
 # limitations under the License.
 
 add_executable_m7(twotonetest
-    twotonetest.cc
+    simple_fft_test.cc
+    kiss_fft.cpp
+    kiss_fftr.cpp
 )
 
 target_link_libraries(twotonetest

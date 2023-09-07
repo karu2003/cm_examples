@@ -12,12 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# find_package( PythonInterp 3.0 REQUIRED )
+find_package(PythonInterp REQUIRED)
+set (py_cmd "test_signal.py")
+
+add_custom_command(
+    PRE_BUILD
+    # OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test_signal.h"
+    OUTPUT "test_signal.h"
+    COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_signal.py"
+    DEPENDS mic_kissfft
+    )
 
 add_executable_m7(mic_kissfft
     mic_kissfft.cc
+    kiss_fft.cpp
+    kiss_fftr.cpp
+    hamming.cpp
 )
 
 target_link_libraries(mic_kissfft
     libs_base-m7_freertos
 )
+
+# add_custom_command(
+#     TARGET mic_kissfft
+#     PRE_BUILD 
+#     COMMAND python3 test_signal.py
+#     COMMENT "Generate Headers"
+
+# )

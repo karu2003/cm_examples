@@ -17,7 +17,7 @@ def animate(i, xs, ys):
 
     line=ser.readline()
     line_as_list = line.split(b',')
-    xs.append(int(line_as_list[0]))
+    xs.append(float(line_as_list[0].decode()))
     ys.append(float(line_as_list[1].decode()))
 
     ax.clear()
