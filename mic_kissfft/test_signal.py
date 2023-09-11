@@ -5,8 +5,8 @@ import os.path
 
 filename = 'test_signal.h'
 
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-filename = __location__+'/'+filename
+# __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+# filename = __location__+'/'+filename
 
 sample_rate = 96000.
 f0 = 700.0
@@ -22,7 +22,6 @@ chirp_signal = np.sin(phase)
 
 # plt.plot(chirp_signal)
 # plt.show()
-# print(chirp_signal)
 
 output_file = '# define NSAMP ' + str(N) + '\n'
 output_file += '# define FSAMP ' + str(sample_rate) + '\n'

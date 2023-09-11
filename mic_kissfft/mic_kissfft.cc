@@ -5,14 +5,14 @@
 #include <cstdio>
 
 #include "libs/base/gpio.h"
-#include "test_signal.h"
+#include <test_signal.h>
+// #include "test_signal.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
-// #include "kiss_fft.h"
 #include <inttypes.h>
-
 #include "hamming.h"
 #include "kiss_fftr.h"
+// #include "kiss_fft.h"
 #include "libs/base/timer.h"
 
 #define DAC_OFF 2047.5

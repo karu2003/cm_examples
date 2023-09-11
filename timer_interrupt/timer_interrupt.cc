@@ -86,13 +86,11 @@ void dac_timer_callback(TimerHandle_t timer) {
   //   vTaskSuspend(nullptr);
   // }
   // vTaskStartScheduler();
-  // return 0;
 while (true){
       if (TimerMicros() - lastMicros_Led >= LED_TIME) {
       lastMicros_Led = TimerMicros();
       printf("LED: %s\r\n", on ? "on" : "off");
     }
-
 }
 }
 }  // namespace
