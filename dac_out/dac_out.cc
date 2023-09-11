@@ -96,22 +96,25 @@ static float f1 = 17000.0;
     // dispTable (waveform, nSamp, s);
     if (TimerMicros() - lastMicros >= SAMLE_COUNT) {
       lastMicros = TimerMicros();
-      if (nStep >= nSamp - 1) {
-        nStep = 0;
-      }
-      // if (nStep <= 0) {
-      //   Dir = 1;
-      // }
-      // DacWrite(waveform[nStep]);
       DacWrite(chirpform[nStep]);
+      // DacWrite(waveform[nStep]);
       nStep = nStep + Dir;
+      if (nStep == nSamp - 1 or nStep == 0) {
+        Dir = Dir * -1;
+      }
     }
     if (TimerMicros() - lastMicros_Led >= LED_TIME) {
       lastMicros_Led = TimerMicros();
       on = !on;
       LedSet(Led::kUser, on);
-      printf("nSamp: %d\r\n", nSamp);
-      printf("LED: %s\r\n", on ? "on" : "off");
+      // printf("nSamp: %d\r\n", nSamp);
+      // printf("LED: %s\r\n", on ? "on" : "off");
+
+      // printf("nStep: %d\r\n", test[nStep]);
+      // nStep = nStep + Dir;
+      // if (nStep == NTEST - 1 or nStep == 0) {
+      //   Dir = Dir * -1;
+      // }
     }
   }
 }
