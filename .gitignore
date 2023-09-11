@@ -1,5 +1,8 @@
 /out
 
+__pycache__
+.vscode
+
 # Prerequisites
 *.d
 
