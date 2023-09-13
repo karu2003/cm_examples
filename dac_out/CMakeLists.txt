@@ -16,6 +16,7 @@ add_executable_m7(dac_out
     dac_out.cc
     chirp.h
     splot.h
+    dac_timer.h
 )
 
 target_link_libraries(dac_out

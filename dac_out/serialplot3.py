@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import serial
 
-ser = serial.Serial("/dev/ttyACM0",115200)
+ser = serial.Serial("/dev/ttyACM0",115200) #/dev/ttyACM0 /dev/ttyUSB2
 
 if ser.is_open==True:
 	print("\nAll right, serial port now open. Configuration:\n")

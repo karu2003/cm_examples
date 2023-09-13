@@ -2,6 +2,8 @@
 #define DAC_OUT_H_
 
 #include <math.h>
+#define DAC_BIT (float)12.
+#define DAC_MAX 4095
 #define DAC_OFF 2047.5
 const float pi = 3.14159265358979;
 const float pi2 = 6.28318530717958;
@@ -18,7 +20,7 @@ inline static float linear_freq_func(float w0, float w1, float indx) {
   return w0 + (w1 - w0) * indx;
 } /* linear_freq_func */
 
-inline void linspace(float a, float b, uint16_t c, float **linspaced) {
+inline void linspace(float a, float b, uint32_t c, float **linspaced) {
   *linspaced = new float[c];
   float delta = (b - a) / (c - 1);
   for (int i = 0; i < c; ++i) {
@@ -27,23 +29,24 @@ inline void linspace(float a, float b, uint16_t c, float **linspaced) {
   return;
 }
 
-inline uint16_t genSampTbl(float freq, float fSamp, float amp, float offset,
+inline uint32_t genSampTbl(float freq, float fSamp, float amp, float offset,
                            uint16_t **waveform) {
-  uint16_t nSamp = (uint16_t)(fSamp / freq);
+  uint32_t nSamp, i;
+  nSamp = lrint(fSamp / freq);
   *waveform = new uint16_t[nSamp];
-  for (int i = 0; i < nSamp; i++) {
+  for (i = 0; i < nSamp; i++) {
     (*waveform)[i] =
         (uint16_t)(DAC_OFF + DAC_OFF * (amp * sin((2 * pi * i) / nSamp)));
   }
   return nSamp;
 }
 
-inline uint16_t chirpGen(float fSamp, float duration, float start_freq,
+inline uint32_t chirpGen(float fSamp, float duration, float start_freq,
                          float end_freq, float amp, float phase,
                          uint16_t **chirpform) {
   float w0, w1;
   float current_phase, instantaneous_w;
-  uint16_t nSamp, i;
+  uint32_t nSamp, i;
   w0 = 2.0 * pi * start_freq / fSamp;
   w1 = 2.0 * pi * end_freq / fSamp;
   nSamp = lrint(duration * fSamp);
@@ -62,9 +65,9 @@ inline uint16_t chirpGen(float fSamp, float duration, float start_freq,
   return nSamp;
 }
 
-inline uint16_t lchirp(float fSamp, float duration, float f0, float f1,
+inline uint32_t lchirp(float fSamp, float duration, float f0, float f1,
                        float **phi) {
-  uint16_t nSamp, i;
+  uint32_t nSamp, i;
   float beta;
   nSamp = lrint(duration * fSamp);
   linspace(0, duration, nSamp, phi);
