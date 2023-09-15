@@ -21,9 +21,10 @@ inline static float linear_freq_func(float w0, float w1, float indx) {
 } /* linear_freq_func */
 
 inline void linspace(float a, float b, uint32_t c, float **linspaced) {
+  uint32_t i;
   *linspaced = new float[c];
   float delta = (b - a) / (c - 1);
-  for (int i = 0; i < c; ++i) {
+  for (i = 0; i < c; ++i) {
     (*linspaced)[i] = a + (i * delta);
   }
   return;
@@ -43,7 +44,7 @@ inline uint32_t genSampTbl(float freq, float fSamp, float amp, float offset,
 
 inline uint32_t chirpGen(float fSamp, float duration, float start_freq,
                          float end_freq, float amp, float phase,
-                         uint16_t **chirpform) {
+                         volatile uint16_t **chirpform) {
   float w0, w1;
   float current_phase, instantaneous_w;
   uint32_t nSamp, i;

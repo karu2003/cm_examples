@@ -38,7 +38,6 @@ namespace coralmicro {
 namespace {
 // [start-sphinx-snippet:dac_out]
 
-static uint64_t lastMicros;
 static uint64_t lastMicros_Led;
 #define LED_TIME int(1 * 1000000)
 static float duration = 1.0f;
@@ -49,14 +48,13 @@ bool on = true;
 }  // namespace
 
 [[noreturn]] void Main() {
-  lastMicros = TimerMicros();
   lastMicros_Led = TimerMicros();
   printf("DAC output Example!\r\n");
 
-  GpioConfigureInterrupt(
-      Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
-      [handle = xTaskGetCurrentTaskHandle()]() { xTaskResumeFromISR(handle); },
-      /*debounce_interval_us=*/50 * 1e3);
+  // GpioConfigureInterrupt(
+  //     Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
+  //     [handle = xTaskGetCurrentTaskHandle()]() { xTaskResumeFromISR(handle); },
+  //     /*debounce_interval_us=*/50 * 1e3);
 
   LedSet(Led::kStatus, on);
 
