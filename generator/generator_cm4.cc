@@ -26,9 +26,13 @@
 namespace coralmicro {
 namespace {
 
+// volatile
+GeneratorSettings g_DAC_Settings;
+
 void HandleM7Message(const uint8_t data[kIpcMessageBufferDataSize]) {
   const auto* app_msg = reinterpret_cast<const GeneratorAppMessage*>(data);
   if (app_msg->type == GeneratorMessageType::kSetStatus) {
+    // memcpy(&g_DAC_Settings, &app_msg, sizeof(g_DAC_Settings));
     printf("[M4] Samlerate %f\r\n", app_msg->Settings.Samlerate);
     printf("[M4] Duration %f\r\n", app_msg->Settings.Duration);
     printf("[M4] F0 %f\r\n", app_msg->Settings.F0);
@@ -40,6 +44,17 @@ void HandleM7Message(const uint8_t data[kIpcMessageBufferDataSize]) {
   }
 }
 
+void Print_Message() {
+  printf("[M4] Samlerate %f\r\n", g_DAC_Settings.Samlerate);
+  printf("[M4] Duration %f\r\n", g_DAC_Settings.Duration);
+  printf("[M4] F0 %f\r\n", g_DAC_Settings.F0);
+  printf("[M4] F1 %f\r\n", g_DAC_Settings.F1);
+  printf("[M4] TypeF %x\r\n", g_DAC_Settings.TypeF);
+  printf("[M4] AutoRestart %d\r\n", g_DAC_Settings.AutoRestart);
+  printf("[M4] RunBack %d\r\n", g_DAC_Settings.RunBack);
+  printf("[M4] Start_DAC %d\r\n", g_DAC_Settings.StartDAC);
+}
+
 bool volatile g_switch_to_m7_signal = false;
 
 }  // namespace
@@ -48,11 +63,13 @@ bool volatile g_switch_to_m7_signal = false;
   printf("[M4] Started, DAC out...\r\n");
   IpcM4::GetSingleton()->RegisterAppMessageHandler(HandleM7Message);
   LedSet(Led::kStatus, true);
+  // Print_Message();
+  // while (true) {
+  // }
+  vTaskDelay(pdMS_TO_TICKS(1000));
 
   printf("[M4] stopped\r\n");
   vTaskSuspend(nullptr);
-  while (true) {
-  }
 }
 }  // namespace coralmicro
 

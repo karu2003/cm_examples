@@ -23,16 +23,10 @@ enum class GeneratorMessageType : uint8_t {
   kAck,
 };
 
-enum class FreqType : uint8_t {
-  linear = 0,
-  quad,
-  log,
-  sin,
-  triangle
-};
+enum class FreqType : uint8_t { linear = 0, quad, log, sin, triangle };
 
-struct GeneratorSettings{
-  float Samlerate; 
+typedef struct {
+  float Samlerate;
   float Duration;
   float F0;
   float F1;
@@ -40,11 +34,11 @@ struct GeneratorSettings{
   bool AutoRestart;
   bool RunBack;
   bool StartDAC;
-};
+}GeneratorSettings;
 
 struct GeneratorAppMessage {
   GeneratorMessageType type;
-  struct GeneratorSettings Settings;
+  GeneratorSettings Settings;
 } __attribute__((packed));
 // [end-sphinx-snippet:ipc-message]
 
