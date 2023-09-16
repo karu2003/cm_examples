@@ -32,15 +32,7 @@ GeneratorSettings g_DAC_Settings;
 void HandleM7Message(const uint8_t data[kIpcMessageBufferDataSize]) {
   const auto* app_msg = reinterpret_cast<const GeneratorAppMessage*>(data);
   if (app_msg->type == GeneratorMessageType::kSetStatus) {
-    // memcpy(&g_DAC_Settings, &app_msg, sizeof(g_DAC_Settings));
-    printf("[M4] Samlerate %f\r\n", app_msg->Settings.Samlerate);
-    printf("[M4] Duration %f\r\n", app_msg->Settings.Duration);
-    printf("[M4] F0 %f\r\n", app_msg->Settings.F0);
-    printf("[M4] F1 %f\r\n", app_msg->Settings.F1);
-    printf("[M4] TypeF %x\r\n", app_msg->Settings.TypeF);
-    printf("[M4] AutoRestart %d\r\n", app_msg->Settings.AutoRestart);
-    printf("[M4] RunBack %d\r\n", app_msg->Settings.RunBack);
-    printf("[M4] Start_DAC %d\r\n", app_msg->Settings.StartDAC);
+    g_DAC_Settings = app_msg->Settings;
   }
 }
 
@@ -60,13 +52,14 @@ bool volatile g_switch_to_m7_signal = false;
 }  // namespace
 
 [[noreturn]] void Main() {
-  printf("[M4] Started, DAC out...\r\n");
+  printf("[M4] Started, Signal Genarator \r\n");
   IpcM4::GetSingleton()->RegisterAppMessageHandler(HandleM7Message);
   LedSet(Led::kStatus, true);
-  // Print_Message();
+
   // while (true) {
   // }
   vTaskDelay(pdMS_TO_TICKS(1000));
+  Print_Message();
 
   printf("[M4] stopped\r\n");
   vTaskSuspend(nullptr);
