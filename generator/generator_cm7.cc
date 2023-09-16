@@ -15,8 +15,12 @@
 #include <algorithm>
 #include <cstdio>
 
+#include "generator_message.h"
 #include "libs/audio/audio_service.h"
+#include "libs/base/check.h"
+#include "libs/base/ipc_m7.h"
 #include "libs/base/led.h"
+#include "libs/base/mutex.h"
 #include "libs/base/network.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
@@ -137,6 +141,13 @@ void ProcessClient(int client_socket) {
   printf("Done.\r\n\r\n");
 }
 
+void HandleM4Message(const uint8_t data[kIpcMessageBufferDataSize]) {
+  const auto* msg = reinterpret_cast<const GeneratorAppMessage*>(data);
+  if (msg->type == GeneratorMessageType::kAck) {
+    printf("[M7] ACK received from M4\r\n");
+  }
+}
+
 [[noreturn]] void Main() {
   printf("Audio Streaming Example!\r\n");
   // Turn on Status LED to show the board is on.
@@ -147,6 +158,25 @@ void ProcessClient(int client_socket) {
     printf("ERROR: Cannot start server.\r\n");
     vTaskSuspend(nullptr);
   }
+
+  auto* ipc = IpcM7::GetSingleton();
+  ipc->RegisterAppMessageHandler(HandleM4Message);
+  ipc->StartM4();
+  CHECK(ipc->M4IsAlive(500));
+
+  IpcMessage msg{};
+  msg.type = IpcMessageType::kApp;
+  auto* app_msg = reinterpret_cast<GeneratorAppMessage*>(&msg.message.data);
+  app_msg->type = GeneratorMessageType::kSetStatus;
+  app_msg->Samlerate = 200000.0;
+  app_msg->Duration = 0.001;
+  app_msg->F0 = 7000.0;
+  app_msg->F1 = 17000.0;
+  app_msg->TypeF = FreqType::quad_freq;
+  app_msg->AutoRestart = true;
+  app_msg->RunBack = true;
+  app_msg->StartDAC = true;
+  ipc->SendMessage(msg);
 
   while (true) {
     printf("INFO: Waiting for the client...\r\n");
@@ -160,14 +190,6 @@ void ProcessClient(int client_socket) {
     ProcessClient(client_socket);
     ::closesocket(client_socket);
     printf("INFO: Client #%d disconnected.\r\n", client_socket);
-
-    // This handler resume this m7 task, as soon as signal from m4 is received.
-    // IpcM7::GetSingleton()->RegisterAppMessageHandler(
-    //     [handle = xTaskGetCurrentTaskHandle()](const uint8_t[]) {
-    //       vTaskResume(handle);
-    //     });
-
-    // IpcM7::GetSingleton()->StartM4();
   }
 }
 }  // namespace
