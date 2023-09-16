@@ -29,14 +29,14 @@ namespace {
 void HandleM7Message(const uint8_t data[kIpcMessageBufferDataSize]) {
   const auto* app_msg = reinterpret_cast<const GeneratorAppMessage*>(data);
   if (app_msg->type == GeneratorMessageType::kSetStatus) {
-    printf("[M4] Samlerate %f\r\n", app_msg->Samlerate);
-    printf("[M4] Duration %f\r\n", app_msg->Duration);
-    printf("[M4] F0 %f\r\n", app_msg->F0);
-    printf("[M4] F1 %f\r\n", app_msg->F1);
-    printf("[M4] TypeF %x\r\n", app_msg->TypeF);
-    printf("[M4] AutoRestart %d\r\n", app_msg->AutoRestart);
-    printf("[M4] RunBack %d\r\n", app_msg->RunBack);
-    printf("[M4] Start_DAC %d\r\n", app_msg->StartDAC);
+    printf("[M4] Samlerate %f\r\n", app_msg->Settings.Samlerate);
+    printf("[M4] Duration %f\r\n", app_msg->Settings.Duration);
+    printf("[M4] F0 %f\r\n", app_msg->Settings.F0);
+    printf("[M4] F1 %f\r\n", app_msg->Settings.F1);
+    printf("[M4] TypeF %x\r\n", app_msg->Settings.TypeF);
+    printf("[M4] AutoRestart %d\r\n", app_msg->Settings.AutoRestart);
+    printf("[M4] RunBack %d\r\n", app_msg->Settings.RunBack);
+    printf("[M4] Start_DAC %d\r\n", app_msg->Settings.StartDAC);
   }
 }
 

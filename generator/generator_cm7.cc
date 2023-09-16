@@ -168,14 +168,14 @@ void HandleM4Message(const uint8_t data[kIpcMessageBufferDataSize]) {
   msg.type = IpcMessageType::kApp;
   auto* app_msg = reinterpret_cast<GeneratorAppMessage*>(&msg.message.data);
   app_msg->type = GeneratorMessageType::kSetStatus;
-  app_msg->Samlerate = 200000.0;
-  app_msg->Duration = 0.001;
-  app_msg->F0 = 7000.0;
-  app_msg->F1 = 17000.0;
-  app_msg->TypeF = FreqType::quad_freq;
-  app_msg->AutoRestart = true;
-  app_msg->RunBack = true;
-  app_msg->StartDAC = true;
+  app_msg->Settings.Samlerate = 200000.0;
+  app_msg->Settings.Duration = 0.001;
+  app_msg->Settings.F0 = 7000.0;
+  app_msg->Settings.F1 = 17000.0;
+  app_msg->Settings.TypeF = FreqType::quad;
+  app_msg->Settings.AutoRestart = true;
+  app_msg->Settings.RunBack = true;
+  app_msg->Settings.StartDAC = true;
   ipc->SendMessage(msg);
 
   while (true) {
