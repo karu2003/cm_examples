@@ -45,17 +45,13 @@ bool volatile g_switch_to_m7_signal = false;
 }  // namespace
 
 [[noreturn]] void Main() {
-  coralmicro::IpcM4::GetSingleton()->RegisterAppMessageHandler(
-      coralmicro::HandleM7Message);
+  printf("[M4] Started, DAC out...\r\n");
+  IpcM4::GetSingleton()->RegisterAppMessageHandler(HandleM7Message);
   LedSet(Led::kStatus, true);
 
-  printf("[M4] Started, DAC out...\r\n");
-
+  printf("[M4] stopped\r\n");
+  vTaskSuspend(nullptr);
   while (true) {
-    // g_switch_to_m7_signal = false;
-
-    printf("[M4] stopped\r\n");
-    vTaskSuspend(nullptr);
   }
 }
 }  // namespace coralmicro
