@@ -36,6 +36,14 @@ typedef struct {
   bool StartDAC;
 }GeneratorSettings;
 
+typedef struct {
+  int sample_rate_hz;
+  int sample_format;
+  int dma_buffer_size_ms;
+  int num_dma_buffers;
+  int drop_first_samples_ms;
+}AudioSettings;
+
 struct GeneratorAppMessage {
   GeneratorMessageType type;
   GeneratorSettings Settings;
