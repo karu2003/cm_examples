@@ -374,7 +374,7 @@ def main():
                         help='signal type linear, quad, log, sin, triangle')
     parser.add_argument('--auto_restart', '-ar', type=str2bool, nargs='?',
                         const=True, default=False,
-                        help="auto restart mode. 1 or 0 (default)"
+                        help="auto restart mode. 1 or 0 (default)")
     parser.add_argument('--run_back', '-rb', type=str2bool, nargs='?',
                         const=True, default=False,
                         help="run back mode. 1 or 0 (default)")
