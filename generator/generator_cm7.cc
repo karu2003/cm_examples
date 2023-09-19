@@ -110,10 +110,7 @@ void ProcessClient(int client_socket) {
 
   auto* ipc = IpcM7::GetSingleton();
   ipc->RegisterAppMessageHandler(HandleM4Message);
-  if (!ipc->M4IsAlive(1)) {
-    ipc->StartM4();
-  }
-
+  ipc->StartM4();
   CHECK(ipc->M4IsAlive(500));
 
   IpcMessage msg{};
@@ -177,7 +174,6 @@ void ProcessClient(int client_socket) {
   printf("Ring buffer underflows: %d\r\n", reader.UnderflowCount());
   printf("Dropped first samples: %d\r\n", num_dropped_samples);
   printf("Done.\r\n\r\n");
-  ipc->StartM4();
 }
 
 [[noreturn]] void Main() {

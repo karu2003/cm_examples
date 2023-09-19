@@ -48,12 +48,18 @@ void Print_Message() {
 void HandleM7_Message(const uint8_t data[kIpcMessageBufferDataSize]) {
   lastMicros_Led = TimerMicros();
   const auto* app_msg = reinterpret_cast<const GeneratorAppMessage*>(data);
+  printf("[M4] Started, Signal Genarator \r\n");
+  LedSet(Led::kStatus, true);
   if (app_msg->type == GeneratorMessageType::kSetStatus) {
     g_DAC_Settings = app_msg->Settings;
     Print_Message();
+
+    IpcMessage ack_msg{};
+    ack_msg.type = IpcMessageType::kApp;
+    auto* app_msg = reinterpret_cast<GeneratorAppMessage*>(&ack_msg.message.data);
+    app_msg->type = GeneratorMessageType::kAck;
+    IpcM4::GetSingleton()->SendMessage(ack_msg);
   }
-  printf("[M4] Started, Signal Genarator \r\n");
-  LedSet(Led::kStatus, true);
   while (true) {
     if (TimerMicros() - lastMicros_Led >= LED_TIME) {
       lastMicros_Led = TimerMicros();
