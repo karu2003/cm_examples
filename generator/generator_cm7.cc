@@ -54,17 +54,24 @@ enum SampleFormat {
 };
 
 void ProcessClient(int client_socket) {
-  int32_t params[5];
-  if (ReadArray(client_socket, params, std::size(params)) != IOStatus::kOk) {
+  SocketMessage params;
+  printf("sizeof(params)%u\r\n",sizeof(params));
+
+  uint8_t *buffer=(uint8_t *)&params;
+  if (ReadBytes(client_socket, &params, sizeof(params)) != IOStatus::kOk) {     
     printf("ERROR: Cannot read params from client socket\r\n");
     return;
   }
 
-  const int sample_rate_hz = params[0];
-  const int sample_format = params[1];
-  const int dma_buffer_size_ms = params[2];
-  const int num_dma_buffers = params[3];
-  const int drop_first_samples_ms = params[4];
+  for (size_t k = 0; k < sizeof(params); k++) {
+    printf("%u",buffer[k]);
+  }
+
+  const int sample_rate_hz = params.ASettings.sample_rate_hz;
+  const int sample_format = params.ASettings.sample_format;
+  const int dma_buffer_size_ms = params.ASettings.dma_buffer_size_ms;
+  const int num_dma_buffers = params.ASettings.num_dma_buffers;
+  const int drop_first_samples_ms = params.ASettings.drop_first_samples_ms;
 
   auto sample_rate = CheckSampleRate(sample_rate_hz);
   if (!sample_rate.has_value()) {
@@ -108,6 +115,24 @@ void ProcessClient(int client_socket) {
          config.num_dma_buffers * config.dma_buffer_size_samples(),
          g_audio_buffers.kCombinedDmaBufferSize);
   printf("Sending audio samples...\r\n");
+
+  //----------------------------------------------------------------
+  printf("DAC Format:\r\n");
+  printf("  Sample rate (Hz): %f\r\n", params.GSettings.Samlerate);
+  printf("  Signal duration (S): %f\r\n", params.GSettings.Duration);
+  printf("  Chirp Start frequency (Hz): %f\r\n", params.GSettings.F0);
+  printf("  Chirp Stop frequency (Hz): %f\r\n",params.GSettings.F1);
+  printf("  Signal amplitude : %f\r\n",params.GSettings.amp);
+  printf("  Start phase : %f\r\n",params.GSettings.phi);
+  printf("  Signal type : %u\r\n", params.GSettings.TypeF);
+  printf("  Auto restart : %s\r\n", params.GSettings.AutoRestart ? "true" : "false" );
+  printf("  Run back : %s\r\n", params.GSettings.RunBack ? "true" : "false" );
+  printf("  Start DAC : %s\r\n", params.GSettings.StartDAC ? "true" : "false" );
+
+  // printf("  Auto restart : %u\r\n", params.GSettings.AutoRestart);
+  // printf("  Run back : %u\r\n", params.GSettings.RunBack);
+  // printf("  Start DAC : %u\r\n", params.GSettings.StartDAC);
+  //----------------------------------------------------------------
 
   AudioReader reader(&driver, config);
   const auto& buffer32 = reader.Buffer();
@@ -172,6 +197,8 @@ void HandleM4Message(const uint8_t data[kIpcMessageBufferDataSize]) {
   app_msg->Settings.Duration = 0.001;
   app_msg->Settings.F0 = 7000.0;
   app_msg->Settings.F1 = 17000.0;
+  app_msg->Settings.amp = 1.0;
+  app_msg->Settings.phi = 0.0;
   app_msg->Settings.TypeF = FreqType::quad;
   app_msg->Settings.AutoRestart = true;
   app_msg->Settings.RunBack = true;

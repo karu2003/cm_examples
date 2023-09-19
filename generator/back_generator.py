@@ -369,14 +369,20 @@ def main():
     parser.add_argument('--fstop', '-fe', type=float,
                         default=17000.0, choices=(1., 80000.0),
                         help='stop frequency in Hz')
+    parser.add_argument('--amp', '-am', type=float,
+                        default=1.0, choices=(0., 1.0),
+                        help='amplitude 0.0 to 1.0')
+    parser.add_argument('--phi', '-ph', type=float,
+                        default=0.0, choices=(0., 360.0),
+                        help='phase 0.0 to 360.0')
     parser.add_argument('--signal_type', '-st', type=FreqType.from_string,
-                        default=FreqType["linear"], choices=list(FreqType),
+                        default=FreqType["quad"], choices=list(FreqType),
                         help='signal type linear, quad, log, sin, triangle')
     parser.add_argument('--auto_restart', '-ar', type=str2bool, nargs='?',
-                        const=True, default=False,
+                        const=True, default=True,
                         help="auto restart mode. 1 or 0 (default)")
     parser.add_argument('--run_back', '-rb', type=str2bool, nargs='?',
-                        const=True, default=False,
+                        const=True, default=True,
                         help="run back mode. 1 or 0 (default)")
     args = parser.parse_args()
 
@@ -400,8 +406,8 @@ def main():
             msg += ' Network over USB is not supported on macOS.'
         raise RuntimeError(msg) from e
     sock.settimeout(None)
-    g_start = int(1)
-    sock.send(struct.pack('<iiiiiffffi???',
+    g_start = 1
+    send_data = struct.pack('<iiiiiffffffi??i',
                           args.sample_rate_hz,
                           args.sample_format.id,
                           args.dma_buffer_size_ms,
@@ -411,11 +417,14 @@ def main():
                           args.duration,
                           args.fstart,
                           args.fstop,
+                          args.amp,
+                          args.phi,
                           args.signal_type.value,
                           args.auto_restart,
                           args.run_back,
-                          g_start,
-                          ))
+                          g_start
+                          )
+    send = sock.send(send_data)
 
     while True:
         samples = sock.recv(4096)

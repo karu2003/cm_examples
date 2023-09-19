@@ -23,31 +23,39 @@ enum class GeneratorMessageType : uint8_t {
   kAck,
 };
 
-enum class FreqType : uint8_t { linear = 0, quad, log, sin, triangle };
+enum class FreqType : uint32_t { linear = 0, quad, log, sin, triangle };
 
 typedef struct {
   float Samlerate;
   float Duration;
   float F0;
   float F1;
+  float amp;
+  float phi;
   FreqType TypeF;
-  bool AutoRestart;
-  bool RunBack;
-  bool StartDAC;
-}GeneratorSettings;
+  uint8_t AutoRestart;
+  uint8_t RunBack;
+  uint8_t StartDAC;
+} GeneratorSettings;
 
 typedef struct {
-  int sample_rate_hz;
-  int sample_format;
-  int dma_buffer_size_ms;
-  int num_dma_buffers;
-  int drop_first_samples_ms;
-}AudioSettings;
+  int32_t sample_rate_hz;
+  int32_t sample_format;
+  int32_t dma_buffer_size_ms;
+  int32_t num_dma_buffers;
+  int32_t drop_first_samples_ms;
+} AudioSettings;
 
 struct GeneratorAppMessage {
   GeneratorMessageType type;
   GeneratorSettings Settings;
 } __attribute__((packed));
+
+typedef struct __attribute__((packed)){
+  AudioSettings ASettings;
+  GeneratorSettings GSettings;
+} SocketMessage;
+
 // [end-sphinx-snippet:ipc-message]
 
 static_assert(sizeof(GeneratorAppMessage) <=
