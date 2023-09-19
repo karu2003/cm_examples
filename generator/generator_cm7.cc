@@ -53,20 +53,34 @@ enum SampleFormat {
   kS32LE = 1,
 };
 
+// void DAC_Message(params) {
+//   printf("DAC Format:\r\n");
+//   printf("  Sample rate (Hz): %f\r\n", params.GSettings.Samlerate);
+//   printf("  Signal duration (S): %f\r\n", params.GSettings.Duration);
+//   printf("  Chirp Start frequency (Hz): %f\r\n", params.GSettings.F0);
+//   printf("  Chirp Stop frequency (Hz): %f\r\n",params.GSettings.F1);
+//   printf("  Signal amplitude : %f\r\n",params.GSettings.amp);
+//   printf("  Start phase : %f\r\n",params.GSettings.phi);
+//   printf("  Signal type : %lu\r\n", (uint32_t)params.GSettings.TypeF);
+//   printf("  Auto restart : %s\r\n", params.GSettings.AutoRestart ? "true" :
+//   "false" ); printf("  Run back : %s\r\n", params.GSettings.RunBack ? "true"
+//   : "false" ); printf("  Start DAC : %s\r\n", params.GSettings.StartDAC ?
+//   "true" : "false" );
+// }
+
+void HandleM4Message(const uint8_t data[kIpcMessageBufferDataSize]) {
+  const auto* msg = reinterpret_cast<const GeneratorAppMessage*>(data);
+  if (msg->type == GeneratorMessageType::kAck) {
+    printf("[M7] ACK received from M4\r\n");
+  }
+}
+
 void ProcessClient(int client_socket) {
   SocketMessage params;
-  printf("sizeof(params)%u\r\n",sizeof(params));
-
-  uint8_t *buffer=(uint8_t *)&params;
-  if (ReadBytes(client_socket, &params, sizeof(params)) != IOStatus::kOk) {     
+  if (ReadBytes(client_socket, &params, sizeof(params)) != IOStatus::kOk) {
     printf("ERROR: Cannot read params from client socket\r\n");
     return;
   }
-
-  for (size_t k = 0; k < sizeof(params); k++) {
-    printf("%u",buffer[k]);
-  }
-
   const int sample_rate_hz = params.ASettings.sample_rate_hz;
   const int sample_format = params.ASettings.sample_format;
   const int dma_buffer_size_ms = params.ASettings.dma_buffer_size_ms;
@@ -94,6 +108,21 @@ void ProcessClient(int client_socket) {
     return;
   }
 
+  auto* ipc = IpcM7::GetSingleton();
+  ipc->RegisterAppMessageHandler(HandleM4Message);
+  if (!ipc->M4IsAlive(1)) {
+    ipc->StartM4();
+  }
+
+  CHECK(ipc->M4IsAlive(500));
+
+  IpcMessage msg{};
+  msg.type = IpcMessageType::kApp;
+  auto* app_msg = reinterpret_cast<GeneratorAppMessage*>(&msg.message.data);
+  app_msg->type = GeneratorMessageType::kSetStatus;
+  app_msg->Settings = params.GSettings;
+  ipc->SendMessage(msg);
+
   AudioDriver driver(g_audio_buffers);
   const AudioDriverConfig config{*sample_rate,
                                  static_cast<size_t>(num_dma_buffers),
@@ -116,23 +145,7 @@ void ProcessClient(int client_socket) {
          g_audio_buffers.kCombinedDmaBufferSize);
   printf("Sending audio samples...\r\n");
 
-  //----------------------------------------------------------------
-  printf("DAC Format:\r\n");
-  printf("  Sample rate (Hz): %f\r\n", params.GSettings.Samlerate);
-  printf("  Signal duration (S): %f\r\n", params.GSettings.Duration);
-  printf("  Chirp Start frequency (Hz): %f\r\n", params.GSettings.F0);
-  printf("  Chirp Stop frequency (Hz): %f\r\n",params.GSettings.F1);
-  printf("  Signal amplitude : %f\r\n",params.GSettings.amp);
-  printf("  Start phase : %f\r\n",params.GSettings.phi);
-  printf("  Signal type : %u\r\n", params.GSettings.TypeF);
-  printf("  Auto restart : %s\r\n", params.GSettings.AutoRestart ? "true" : "false" );
-  printf("  Run back : %s\r\n", params.GSettings.RunBack ? "true" : "false" );
-  printf("  Start DAC : %s\r\n", params.GSettings.StartDAC ? "true" : "false" );
-
-  // printf("  Auto restart : %u\r\n", params.GSettings.AutoRestart);
-  // printf("  Run back : %u\r\n", params.GSettings.RunBack);
-  // printf("  Start DAC : %u\r\n", params.GSettings.StartDAC);
-  //----------------------------------------------------------------
+  // DAC_Message(params);
 
   AudioReader reader(&driver, config);
   const auto& buffer32 = reader.Buffer();
@@ -164,13 +177,7 @@ void ProcessClient(int client_socket) {
   printf("Ring buffer underflows: %d\r\n", reader.UnderflowCount());
   printf("Dropped first samples: %d\r\n", num_dropped_samples);
   printf("Done.\r\n\r\n");
-}
-
-void HandleM4Message(const uint8_t data[kIpcMessageBufferDataSize]) {
-  const auto* msg = reinterpret_cast<const GeneratorAppMessage*>(data);
-  if (msg->type == GeneratorMessageType::kAck) {
-    printf("[M7] ACK received from M4\r\n");
-  }
+  ipc->StartM4();
 }
 
 [[noreturn]] void Main() {
@@ -183,27 +190,6 @@ void HandleM4Message(const uint8_t data[kIpcMessageBufferDataSize]) {
     printf("ERROR: Cannot start server.\r\n");
     vTaskSuspend(nullptr);
   }
-
-  auto* ipc = IpcM7::GetSingleton();
-  ipc->RegisterAppMessageHandler(HandleM4Message);
-  ipc->StartM4();
-  CHECK(ipc->M4IsAlive(500));
-
-  IpcMessage msg{};
-  msg.type = IpcMessageType::kApp;
-  auto* app_msg = reinterpret_cast<GeneratorAppMessage*>(&msg.message.data);
-  app_msg->type = GeneratorMessageType::kSetStatus;
-  app_msg->Settings.Samlerate = 200000.0;
-  app_msg->Settings.Duration = 0.001;
-  app_msg->Settings.F0 = 7000.0;
-  app_msg->Settings.F1 = 17000.0;
-  app_msg->Settings.amp = 1.0;
-  app_msg->Settings.phi = 0.0;
-  app_msg->Settings.TypeF = FreqType::quad;
-  app_msg->Settings.AutoRestart = true;
-  app_msg->Settings.RunBack = true;
-  app_msg->Settings.StartDAC = true;
-  ipc->SendMessage(msg);
 
   while (true) {
     printf("INFO: Waiting for the client...\r\n");

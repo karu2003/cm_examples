@@ -17,18 +17,20 @@
 #include "generator_message.h"
 #include "libs/base/ipc_m4.h"
 #include "libs/base/led.h"
-#include "libs/base/timer.h"
 #include "libs/base/main_freertos_m4.h"
 #include "libs/base/mutex.h"
+#include "libs/base/timer.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
 #include "third_party/freertos_kernel/include/timers.h"
 
 namespace coralmicro {
 namespace {
-
-// volatile
 GeneratorSettings g_DAC_Settings;
+uint64_t lastMicros_Led;
+#define LED_TIME int(1 * 1000000)
+bool volatile on = true;
+bool volatile g_switch_to_m7_signal = false;
 
 void Print_Message() {
   printf("[M4] Samlerate %f\r\n", g_DAC_Settings.Samlerate);
@@ -37,44 +39,35 @@ void Print_Message() {
   printf("[M4] F1 %f\r\n", g_DAC_Settings.F1);
   printf("[M4] Amplitude %f\r\n", g_DAC_Settings.amp);
   printf("[M4] Phase %f\r\n", g_DAC_Settings.phi);
-  printf("[M4] TypeF %x\r\n", g_DAC_Settings.TypeF);
+  printf("[M4] TypeF %lu\r\n", (uint32_t)g_DAC_Settings.TypeF);
   printf("[M4] AutoRestart %d\r\n", g_DAC_Settings.AutoRestart);
   printf("[M4] RunBack %d\r\n", g_DAC_Settings.RunBack);
   printf("[M4] Start_DAC %d\r\n", g_DAC_Settings.StartDAC);
 }
 
-void HandleM7Message(const uint8_t data[kIpcMessageBufferDataSize]) {
+void HandleM7_Message(const uint8_t data[kIpcMessageBufferDataSize]) {
+  lastMicros_Led = TimerMicros();
   const auto* app_msg = reinterpret_cast<const GeneratorAppMessage*>(data);
   if (app_msg->type == GeneratorMessageType::kSetStatus) {
     g_DAC_Settings = app_msg->Settings;
     Print_Message();
   }
-}
-
-static uint64_t lastMicros_Led;
-#define LED_TIME int(1 * 1000000)
-bool volatile on = true;
-
-bool volatile g_switch_to_m7_signal = false;
-
-}  // namespace
-
-[[noreturn]] void Main() {
-  lastMicros_Led = TimerMicros();
   printf("[M4] Started, Signal Genarator \r\n");
-  IpcM4::GetSingleton()->RegisterAppMessageHandler(HandleM7Message);
   LedSet(Led::kStatus, true);
   while (true) {
     if (TimerMicros() - lastMicros_Led >= LED_TIME) {
       lastMicros_Led = TimerMicros();
       on = !on;
       LedSet(Led::kUser, on);
-  }
+    }
   }
 }
+}  // namespace
 }  // namespace coralmicro
 
 extern "C" void app_main(void* param) {
   (void)param;
-  coralmicro::Main();
+  coralmicro::IpcM4::GetSingleton()->RegisterAppMessageHandler(
+      coralmicro::HandleM7_Message);
+  vTaskSuspend(nullptr);
 }
