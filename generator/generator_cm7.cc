@@ -110,8 +110,10 @@ void ProcessClient(int client_socket) {
 
   auto* ipc = IpcM7::GetSingleton();
   ipc->RegisterAppMessageHandler(HandleM4Message);
-  ipc->StartM4();
-  CHECK(ipc->M4IsAlive(500));
+  if (!ipc->M4IsAlive(500)) {
+    ipc->StartM4();
+    CHECK(ipc->M4IsAlive(500));
+  }
 
   IpcMessage msg{};
   msg.type = IpcMessageType::kApp;

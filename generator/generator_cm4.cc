@@ -18,7 +18,8 @@
 #include "libs/base/ipc_m4.h"
 #include "libs/base/led.h"
 #include "libs/base/main_freertos_m4.h"
-#include "libs/base/mutex.h"
+// #include "libs/base/mutex.h"
+#include "libs/base/tasks.h"
 #include "libs/base/timer.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
@@ -46,20 +47,25 @@ void Print_Message() {
 }
 
 void HandleM7_Message(const uint8_t data[kIpcMessageBufferDataSize]) {
-  lastMicros_Led = TimerMicros();
   const auto* app_msg = reinterpret_cast<const GeneratorAppMessage*>(data);
-  printf("[M4] Started, Signal Genarator \r\n");
-  LedSet(Led::kStatus, true);
   if (app_msg->type == GeneratorMessageType::kSetStatus) {
     g_DAC_Settings = app_msg->Settings;
     Print_Message();
 
     IpcMessage ack_msg{};
     ack_msg.type = IpcMessageType::kApp;
-    auto* app_msg = reinterpret_cast<GeneratorAppMessage*>(&ack_msg.message.data);
+    auto* app_msg =
+        reinterpret_cast<GeneratorAppMessage*>(&ack_msg.message.data);
     app_msg->type = GeneratorMessageType::kAck;
     IpcM4::GetSingleton()->SendMessage(ack_msg);
   }
+}
+
+void generator_task(void* param) {
+  lastMicros_Led = TimerMicros();
+  printf("[M4] Started, Signal Genarator \r\n");
+  LedSet(Led::kStatus, true);
+
   while (true) {
     if (TimerMicros() - lastMicros_Led >= LED_TIME) {
       lastMicros_Led = TimerMicros();
@@ -73,7 +79,12 @@ void HandleM7_Message(const uint8_t data[kIpcMessageBufferDataSize]) {
 
 extern "C" void app_main(void* param) {
   (void)param;
+  TaskHandle_t gen_task;
   coralmicro::IpcM4::GetSingleton()->RegisterAppMessageHandler(
       coralmicro::HandleM7_Message);
+  // xTaskCreate([](void* param) {while (true) { }}, "wake task",
+  // configMINIMAL_STACK_SIZE, nullptr, 1U, nullptr);
+  xTaskCreate(coralmicro::generator_task, "generator_task",
+              configMINIMAL_STACK_SIZE * 10, nullptr, 1U, &gen_task);
   vTaskSuspend(nullptr);
 }
