@@ -5,6 +5,8 @@ params = [
         "value": 200000.0,
         "suffix": "Hz",
         "siPrefix": True,
+        # "default": False,
+        # "expanded": False,
     },
     {
         "name": "Sample format",
@@ -86,5 +88,5 @@ params = [
     },
     {"name": "Auto restart", "type": "bool", "value": True},
     {"name": "Run back", "type": "bool", "value": False},
-    {"name": "Start", "type": "bool", "value": False},
+    # {"name": "Start", "type": "bool", "value": False},
 ]

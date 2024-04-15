@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 import matplotlib.pyplot as plt
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
+from PyQt5.QtWidgets import QSizePolicy
 import pyqtgraph.parametertree.parameterTypes as pTypes
 from pyqtgraph.parametertree import Parameter, ParameterTree
 import sys
@@ -14,10 +15,27 @@ import numpy as np
 
 from params import params
 
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
+uiclass, baseclass = pg.Qt.loadUiType(__location__ + "/ui_gen.ui")
 
-
-uiclass, baseclass = pg.Qt.loadUiType("ui_gen.ui")
+TreeStyle = """
+            QTreeView {
+                background-color: rgb(46, 52, 54);
+                alternate-background-color: rgb(39, 44, 45);
+                color: rgb(238, 238, 238);
+            }
+            QLabel {
+                color: rgb(238, 238, 238);
+            }
+            QTreeView::item:has-children {
+                background-color: '#212627';
+                color: rgb(233, 185, 110);
+            }
+            QTreeView::item:selected {
+                background-color: rgb(92, 53, 102);
+            }
+            """
 
 
 class MainWindow(uiclass, baseclass, object):
@@ -33,6 +51,12 @@ class MainWindow(uiclass, baseclass, object):
 
         self.t = ParameterTree(showHeader=False)
         self.t.setParameters(self.p, showTop=False)
+        self.t.setStyleSheet(TreeStyle)
+
+        # pl = self.t.palette()
+        # pl.setColor(self.t.backgroundRole(), Qt.red)
+        # self.t.setPalette(pl)
+
         # self.t.addParameters(self.p)
         # self.t.setWindowTitle("Generator Parameter")
 
@@ -50,8 +74,14 @@ class MainWindow(uiclass, baseclass, object):
         self.measurements.hideAxis("bottom")
 
         self.vb_w = self.measurements.getViewBox()
-        # self.t.setProperty("hide_action_toolbar", True)
-        self.vlay_tree.addWidget(self.t)
+        self.t.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.vlay_tree.addWidget(self.t, stretch=5)
+        # self.vlay_tree.addStretch()
+        self.button = QtWidgets.QPushButton("Start")
+        self.button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.button.clicked.connect(self.ButtonStart)
+        self.vlay_tree.addWidget(self.button, stretch=1)
+        # self.vlay_tree.addStretch()
 
     def change(self, param, changes):
         print("tree changes:")
