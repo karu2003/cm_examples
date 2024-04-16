@@ -113,6 +113,10 @@ class MainWindow(uiclass, baseclass, object):
 
     def ButtonStart(self):
         print("Start")
+        print(self.p.param('Phase').value())
+        # self.p.param('Phase').setValue(360.0)
+        for k , v in self.p.names.items():
+            print(k ,self.p.param(k).value() )
 
     def update(self):
         pass
