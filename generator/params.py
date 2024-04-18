@@ -88,5 +88,5 @@ params = [
     },
     {"name": "Auto restart", "type": "bool", "value": True},
     {"name": "Run back", "type": "bool", "value": False},
-    {"name": "Start", "type": "bool", "value": False, "visible":False},
+    {"name": "Start", "type": "bool", "value": False}#, "visible":False},
 ]
