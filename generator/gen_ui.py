@@ -106,6 +106,9 @@ PLAYERS = (
 )
 FORMATS = {"raw": RawFileWriter, "wav": WavFileWriter}
 
+HIDE = ["host","port","output", "ffplay", "player","format"]
+HZ_SUFFIX = ["sample_rate_hz", "dac_sample_rate_hz", "fstart", "fstop"]
+
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -149,7 +152,12 @@ class MainWindow(uiclass, baseclass, object):
         # self.t.setParameters(self.p, showTop=False)        
         # self.p.child("args").setOpts(title="Genarator Options")
 
-        self.p = Parameter.create(name="params", type="group", children=self.params)
+        # self.p = Parameter.create(name="params", type="group", children=self.params)
+        # self.p = self.init_params_from_args(args, params=self.params)
+        self.p = self.create_params_from_args(args)
+        self.hide_params(self.p)
+        self.add_suxffix(self.p, suffix_list=HZ_SUFFIX, suffix="Hz")
+        self.add_sisuffix(self.p, si_list=HZ_SUFFIX)
         self.t = ParameterTree(showHeader=False)
         self.t.setParameters(self.p, showTop=False)
         
@@ -185,6 +193,77 @@ class MainWindow(uiclass, baseclass, object):
         self.button.clicked.connect(self.ButtonStart)
         self.vlay_tree.addWidget(self.button, stretch=1)
         # self.vlay_tree.addStretch()
+    
+    def init_params_from_args(self, args, params):
+        """Initialize parameters from command line arguments."""
+        p = Parameter.create(name="params", type="group", children=params)
+        args = vars(args)
+        for k, v in args.items():
+            if k in p.names:
+                p[k] = v
+        return p
+    
+    def create_params_from_args(self, args):
+        """Create parameters from command line arguments use .setOpts."""
+        p = Parameter.create(name="params", type="group")
+        args = vars(args)
+        for k, v in args.items():
+            if type(v) == bool:
+                p.addChild({"name": k, "type": "bool", "value": v})
+            elif type(v) == int:
+                p.addChild({"name": k, "type": "int", "value": v})
+            elif type(v) == float:
+                p.addChild({"name": k, "type": "float", "value": v})
+            elif type(v) == str:
+                if k == "format":
+                    p.addChild(
+                        {
+                            "name": k,
+                            "type": "list",
+                            "limits": list(FORMATS.keys()),
+                            "value": v,
+                        }
+                    )
+                else:
+                    p.addChild({"name": k, "type": "str", "value": v})
+                # p.addChild({"name": k, "type": "str", "value": v})
+            elif type(v) == FreqType:
+                p.addChild(
+                    {
+                        "name": k,
+                        "type": "list",
+                        "limits": ["linear", "quad", "log", "sin", "triangle"],
+                        "value": str(v),
+                    }
+                )
+            elif type(v) == SampleFormat:
+                p.addChild(
+                    {
+                        "name": k,
+                        "type": "list",
+                        "limits": list(SAMPLE_FORMATS.keys()),
+                        "value": v.name,
+                    }
+                )
+        return p
+    
+    def hide_params(self, p, hide=HIDE):
+        """Hide some parameters."""
+        for k in p.names:
+            if k in hide:
+                p.param(k).setOpts(visible=False)
+                
+    def add_suxffix(self, p, suffix_list = HZ_SUFFIX, suffix="Hz"):
+        """Add suffix to list parameters."""
+        for k in p.names:
+            if k in suffix_list:
+                k = p.param(k).setOpts(suffix=suffix)
+    
+    def add_sisuffix(self, p, si_list = HZ_SUFFIX):
+        """Add SI suffix to list parameters."""
+        for k in p.names:
+            if k in si_list:
+                k = p.param(k).setOpts(siPrefix=True)
 
     def change(self, param, changes):
         print("tree changes:")
