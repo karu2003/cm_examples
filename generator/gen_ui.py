@@ -63,6 +63,22 @@ class MainWindow(uiclass, baseclass, object):
         self.tree.p.param("phi").setValue(360.0)
         for k, v in self.tree.p.names.items():
             print(k, self.tree.p.param(k).value(), self.tree.p.param(k).opts['visible'])
+            
+            # print(self.tree.p.param(k).opts)
+            # if 'suffix' in self.tree.p.param(k).opts:
+
+            if 'suffix' in self.tree.p.param(k).opts:
+                # print(self.tree.p.param(k).opts['suffix'])
+                # print(f"Suffix for {k}: {self.tree.p.param(k).opts['suffix']}")
+                print(f"Suffix : {self.tree.p.param(k).opts['suffix']}")
+            
+            if 'siPrefix' in self.tree.p.param(k).opts:
+                # print(self.tree.p.param(k).opts['suffix'])
+                # print(f"Suffix for {k}: {self.tree.p.param(k).opts['suffix']}")
+                print(f"siPrefix : {self.tree.p.param(k).opts['siPrefix']}")
+            # else:
+            #     print(f"No suffix for {k}")
+
 
     def update(self):
         pass
