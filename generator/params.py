@@ -1,5 +1,6 @@
 import collections
 import contextlib
+import sys
 
 try:
     import pyaudio  # sudo apt-get install python3-pyaudio
