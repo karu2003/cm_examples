@@ -62,7 +62,7 @@ class MainWindow(uiclass, baseclass, object):
         print(self.tree.p.param("phi").value())
         self.tree.p.param("phi").setValue(360.0)
         for k, v in self.tree.p.names.items():
-            print(k, self.tree.p.param(k).value())
+            print(k, self.tree.p.param(k).value(), self.tree.p.param(k).opts['visible'])
 
     def update(self):
         pass
