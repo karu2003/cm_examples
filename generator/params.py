@@ -1,6 +1,7 @@
 import collections
 import contextlib
 import sys
+import yaml
 
 try:
     import pyaudio  # sudo apt-get install python3-pyaudio
@@ -204,26 +205,43 @@ TreeStyle = """
 
 from pyqtgraph.parametertree import Parameter, ParameterTree
 from PyQt5.QtCore import Qt
+import os
+
+
+class UnsortedDumper(yaml.Dumper):
+    def represent_dict(self, data):
+        return self.represent_mapping("tag:yaml.org,2002:map", data.items())
+
+
+yaml.add_representer(dict, UnsortedDumper.represent_dict, Dumper=UnsortedDumper)
 
 
 class GenParameterTree(ParameterTree):
-    def __init__(self, args):
+    def __init__(self, args, filename):
         super().__init__()
         # self.params = params
-        self.p = self.init_params_from_args(args, params)
-        self.p = self.create_params_from_args(args)
 
-        self.hide_params(self.p)
-        self.add_suxffix(self.p, suffix_list=HZ_SUFFIX, suffix="Hz")
-        self.add_sisuffix(self.p, si_list=HZ_SUFFIX)
+        if self.is_file_available(filename):
+            self.p = Parameter.create(name="params", type="group", children=params)
+            self.load_from_yaml(filename)
+        else:
+            self.p = self.init_params_from_args(args, params)
+            self.p = self.create_params_from_args(args)
+            self.hide_params(self.p)
+            self.add_suxffix(self.p, suffix_list=HZ_SUFFIX, suffix="Hz")
+            self.add_sisuffix(self.p, si_list=HZ_SUFFIX)
 
-        self.p.sigTreeStateChanged.connect(self.change)
         self.setParameters(self.p, showTop=False)
-        # self.setStyleSheet(TreeStyle)
+        self.p.sigTreeStateChanged.connect(self.change)
+
+        self.setStyleSheet(TreeStyle)
 
         pl = self.palette()
         pl.setColor(self.backgroundRole(), Qt.red)
         self.setPalette(pl)
+
+    def is_file_available(self, filename):
+        return os.path.exists(filename) and os.path.getsize(filename) > 0
 
     def init_params_from_args(self, args, params):
         """Initialize parameters from command line arguments."""
@@ -257,7 +275,6 @@ class GenParameterTree(ParameterTree):
                     )
                 else:
                     p.addChild({"name": k, "type": "str", "value": v})
-                # p.addChild({"name": k, "type": "str", "value": v})
             elif type(v) == FreqType:
                 p.addChild(
                     {
@@ -313,8 +330,7 @@ class GenParameterTree(ParameterTree):
         print("Value changing (not finalized): %s %s" % (param, value))
 
     def save(self):
-        global state
-        state = self.p.saveState()
+        return self.p.saveState()  # filter="user")
 
     def restore(self):
         global state
@@ -325,12 +341,54 @@ class GenParameterTree(ParameterTree):
         self.p.restoreState(state, addChildren=add, removeChildren=rem)
 
     def print_all_set(self, p):
-        """print all settings of paramert"""
-        state = p.saveState()
-        for param in p:
-            # print(param.opts)
-            for i in param.opts:
-                print(i)
-        # print(state)
-        # for i in p.names:
-        #     print(type(p.param(i)).opts)
+        for k, v in self.tree.p.names.items():
+            print(k, self.tree.p.param(k).value(), self.tree.p.param(k).opts["visible"])
+
+            # print(self.tree.p.param(k).opts)
+            # if 'suffix' in self.tree.p.param(k).opts:
+
+            if "suffix" in self.tree.p.param(k).opts:
+                # print(self.tree.p.param(k).opts['suffix'])
+                # print(f"Suffix for {k}: {self.tree.p.param(k).opts['suffix']}")
+                print(f"Suffix : {self.tree.p.param(k).opts['suffix']}")
+
+            if "siPrefix" in self.tree.p.param(k).opts:
+                # print(self.tree.p.param(k).opts['suffix'])
+                # print(f"Suffix for {k}: {self.tree.p.param(k).opts['suffix']}")
+                print(f"siPrefix : {self.tree.p.param(k).opts['siPrefix']}")
+            # else:
+            #     print(f"No suffix for {k}")
+
+    def remove_name_key(self, state):
+        if isinstance(state, dict):
+            state.pop("name", None)
+            for value in state.values():
+                self.remove_name_key(value)
+        elif isinstance(state, list):
+            for item in state:
+                self.remove_name_key(item)
+
+    def save_to_yaml(self, filename):
+        state = self.save()
+        # self.remove_name_key(state)
+
+        state = self.ordered_dict_to_dict(state)
+
+        with open(filename, "w") as file:
+            yaml.dump(state, file, Dumper=UnsortedDumper)
+            # yaml.dump(dict(state), file)#, default_flow_style=False)
+
+    def load_from_yaml(self, filename):
+        with open(filename, "r") as file:
+            state = yaml.load(file, Loader=yaml.FullLoader)
+        self.p.restoreState(state, addChildren=True)
+
+    def ordered_dict_to_dict(self, state):
+        if isinstance(state, dict):
+            state = dict(state)
+            for key, value in state.items():
+                state[key] = self.ordered_dict_to_dict(value)
+        elif isinstance(state, list):
+            for i, item in enumerate(state):
+                state[i] = self.ordered_dict_to_dict(item)
+        return state

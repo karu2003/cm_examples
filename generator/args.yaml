@@ -1,0 +1,322 @@
+type: group
+readonly: false
+visible: true
+enabled: true
+renamable: false
+removable: false
+strictNaming: false
+expanded: true
+syncExpanded: false
+title: null
+name: params
+children:
+  host:
+    type: str
+    readonly: false
+    visible: false
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: host
+    value: 10.10.10.1
+    default: 10.10.10.1
+  port:
+    type: int
+    readonly: false
+    visible: false
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: port
+    value: 33000
+    default: 33000
+  sample_rate_hz:
+    type: int
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: sample_rate_hz
+    value: 48000
+    default: 48000
+    suffix: Hz
+    siPrefix: true
+  sample_format:
+    type: list
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: sample_format
+    limits:
+    - S16_LE
+    - S32_LE
+    value: S16_LE
+    default: S16_LE
+  num_dma_buffers:
+    type: int
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: num_dma_buffers
+    value: 2
+    default: 2
+  dma_buffer_size_ms:
+    type: int
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: dma_buffer_size_ms
+    value: 50
+    default: 50
+    suffix: mS
+    siPrefix: true
+  drop_first_samples_ms:
+    type: int
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: drop_first_samples_ms
+    value: 0
+    default: 0
+    suffix: mS
+    siPrefix: true
+  player:
+    type: str
+    readonly: false
+    visible: false
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: player
+    value: none
+    default: none
+  format:
+    type: list
+    readonly: false
+    visible: false
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: format
+    limits:
+    - raw
+    - wav
+    value: wav
+    default: wav
+  output:
+    type: str
+    readonly: false
+    visible: false
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: output
+    value: output.wav
+    default: output.wav
+  ffplay:
+    type: bool
+    readonly: false
+    visible: false
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: ffplay
+    value: false
+    default: false
+  dac_sample_rate_hz:
+    type: float
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: dac_sample_rate_hz
+    value: 200000.0
+    default: 200000.0
+    suffix: Hz
+    siPrefix: true
+  duration:
+    type: float
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: duration
+    value: 0.001
+    default: 0.001
+    suffix: S
+    siPrefix: true
+  fstart:
+    type: float
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: fstart
+    value: 7000.0
+    default: 7000.0
+    suffix: Hz
+    siPrefix: true
+  fstop:
+    type: float
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: fstop
+    value: 17000.0
+    default: 17000.0
+    suffix: Hz
+    siPrefix: true
+  amp:
+    type: float
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: amp
+    value: 1.0
+    default: 1.0
+    suffix: V
+    siPrefix: true
+  phi:
+    type: float
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: phi
+    value: 360.0
+    default: 0.0
+    suffix: "\xB0"
+    siPrefix: true
+  signal_type:
+    type: list
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: signal_type
+    limits:
+    - linear
+    - quad
+    - log
+    - sin
+    - triangle
+    value: quad
+    default: quad
+  auto_restart:
+    type: bool
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: auto_restart
+    value: true
+    default: true
+  run_back:
+    type: bool
+    readonly: false
+    visible: true
+    enabled: true
+    renamable: false
+    removable: false
+    strictNaming: false
+    expanded: true
+    syncExpanded: false
+    title: null
+    name: run_back
+    value: true
+    default: true
