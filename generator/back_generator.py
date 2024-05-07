@@ -26,7 +26,29 @@ import matplotlib.animation as animation
 import numpy as np
 
 
-def main():
+def pack_data(args, g_start):
+    send_data = struct.pack(
+        "<iiiiiffffffi??i",
+        args.sample_rate_hz,
+        args.sample_format.id,
+        args.dma_buffer_size_ms,
+        args.num_dma_buffers,
+        args.drop_first_samples_ms,
+        args.dac_sample_rate_hz,
+        args.duration,
+        args.fstart,
+        args.fstop,
+        args.amp,
+        args.phi,
+        args.signal_type.value,
+        args.auto_restart,
+        args.run_back,
+        g_start,
+    )
+    return send_data
+
+
+def main(args):
     f, ax = plt.subplots(2)
     x = np.arange(10000)
     y = np.random.randn(10000)
@@ -43,11 +65,6 @@ def main():
     # Show the plot, but without blocking updates
     plt.pause(0.01)
     plt.tight_layout()
-
-    from argparse_gen import ArgumentParserClass
-
-    arg_parser = ArgumentParserClass()
-    args = arg_parser.parse_args()
 
     if args.ffplay:
         filename = args.output if args.output else "<filename>"
@@ -74,24 +91,8 @@ def main():
         raise RuntimeError(msg) from e
     sock.settimeout(None)
     g_start = 1
-    send_data = struct.pack(
-        "<iiiiiffffffi??i",
-        args.sample_rate_hz,
-        args.sample_format.id,
-        args.dma_buffer_size_ms,
-        args.num_dma_buffers,
-        args.drop_first_samples_ms,
-        args.dac_sample_rate_hz,
-        args.duration,
-        args.fstart,
-        args.fstop,
-        args.amp,
-        args.phi,
-        args.signal_type.value,
-        args.auto_restart,
-        args.run_back,
-        g_start,
-    )
+
+    send_data = pack_data(args, g_start)
     send = sock.send(send_data)
 
     while True:
@@ -107,5 +108,9 @@ def main():
         plt.pause(0.01)
 
 
+from argparse_gen import ArgumentParserClass
+
 if __name__ == "__main__":
-    main()
+    arg_parser = ArgumentParserClass()
+    args = arg_parser.parse_args()
+    main(args)
