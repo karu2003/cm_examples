@@ -55,7 +55,6 @@ class MainWindow(uiclass, baseclass, object):
         # self.vlay_tree.addStretch()
 
     def ButtonStart(self):
-        key = []
         print("Start")
         print(self.tree.p.param("phi").value())
         self.tree.p.param("phi").setValue(360.0)
