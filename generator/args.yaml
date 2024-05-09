@@ -268,7 +268,7 @@ children:
     syncExpanded: false
     title: null
     name: phi
-    value: 360.0
+    value: 0.0
     default: 0.0
     suffix: "\xB0"
     siPrefix: true
@@ -318,5 +318,5 @@ children:
     syncExpanded: false
     title: null
     name: run_back
-    value: true
+    value: false
     default: true

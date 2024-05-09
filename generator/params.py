@@ -2,6 +2,7 @@ import collections
 import contextlib
 import sys
 import yaml
+import types
 
 try:
     import pyaudio  # sudo apt-get install python3-pyaudio
@@ -341,21 +342,21 @@ class GenParameterTree(ParameterTree):
         self.p.restoreState(state, addChildren=add, removeChildren=rem)
 
     def print_all_set(self, p):
-        for k, v in self.tree.p.names.items():
-            print(k, self.tree.p.param(k).value(), self.tree.p.param(k).opts["visible"])
+        for k, v in p.names.items():
+            print(k, p.param(k).value(), p.param(k).opts["visible"])
 
             # print(self.tree.p.param(k).opts)
             # if 'suffix' in self.tree.p.param(k).opts:
 
-            if "suffix" in self.tree.p.param(k).opts:
-                # print(self.tree.p.param(k).opts['suffix'])
-                # print(f"Suffix for {k}: {self.tree.p.param(k).opts['suffix']}")
-                print(f"Suffix : {self.tree.p.param(k).opts['suffix']}")
+            if "suffix" in p.param(k).opts:
+                # print(p.param(k).opts['suffix'])
+                # print(f"Suffix for {k}: {p.param(k).opts['suffix']}")
+                print(f"Suffix : {p.param(k).opts['suffix']}")
 
-            if "siPrefix" in self.tree.p.param(k).opts:
+            if "siPrefix" in p.param(k).opts:
                 # print(self.tree.p.param(k).opts['suffix'])
                 # print(f"Suffix for {k}: {self.tree.p.param(k).opts['suffix']}")
-                print(f"siPrefix : {self.tree.p.param(k).opts['siPrefix']}")
+                print(f"siPrefix : {p.param(k).opts['siPrefix']}")
             # else:
             #     print(f"No suffix for {k}")
 
@@ -392,3 +393,13 @@ class GenParameterTree(ParameterTree):
             for i, item in enumerate(state):
                 state[i] = self.ordered_dict_to_dict(item)
         return state
+
+    def get_params(self):
+        params = {}
+        for child in self.p.children():
+            params[child.name()] = child.value()
+            if child.name() == "sample_format":
+                params[child.name()] = SAMPLE_FORMATS[child.value()]
+            if child.name() == "signal_type":
+                params[child.name()] = FreqType.from_string(child.value())
+        return types.SimpleNamespace(**params)
