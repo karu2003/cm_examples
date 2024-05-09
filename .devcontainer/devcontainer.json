@@ -48,7 +48,8 @@
 				"ms-toolsai.jupyter-keymap",
 				"ms-python.black-formatter",
 				"GitHub.copilot",
-				"GitHub.copilot-chat"
+				"GitHub.copilot-chat",
+				"ms-vscode.cpptools-extension-pack"
 			]
 		}
 	},
