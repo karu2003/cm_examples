@@ -163,10 +163,10 @@ void ProcessClient(int client_socket) {
   } else {
     std::vector<int16_t> buffer16(buffer32.size());
     while (true) {
-        if (ReadBytes(client_socket, &params, sizeof(params)) == IOStatus::kOk) {
-          printf("Read new Data");
-          break;
-        }
+      if (ReadBytes(client_socket, &params, sizeof(params)) == IOStatus::kOk) {
+        printf("Read new Data");
+        break;
+      }
       auto size = reader.FillBuffer();
       for (size_t i = 0; i < size; ++i) buffer16[i] = buffer32[i] >> 16;
       if (WriteArray(client_socket, buffer16.data(), size) != IOStatus::kOk)
