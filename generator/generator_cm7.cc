@@ -164,7 +164,7 @@ void ProcessClient(int client_socket) {
     std::vector<int16_t> buffer16(buffer32.size());
     while (true) {
       if (ReadBytes(client_socket, &params, sizeof(params)) == IOStatus::kOk) {
-        printf("Read new Data");
+        printf("Read new Generator config\r\n");
         break;
       }
       auto size = reader.FillBuffer();

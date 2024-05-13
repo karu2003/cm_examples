@@ -97,7 +97,7 @@
     },
     "python.formatting.provider": "none",
     "cmake.sourceDirectory": "${workspaceFolder}",
-    // "cmake.cmakePath": "/path/to/cmake/bin/cmake",
+    // "cmake.cmakePath": "/snap/bin", 
     "cmake.configureSettings": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
