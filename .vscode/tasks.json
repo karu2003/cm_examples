@@ -4,7 +4,9 @@
         {
             "label": "Flash Firmware",
             "type": "shell",
-            "command": "python3 ${workspaceFolder}/coralmicro/scripts/flashtool.py --build_dir ${workspaceFolder}/out --elf_path ${workspaceFolder}/out/generator/generator",
+            // "command": "python3 ${workspaceFolder}/coralmicro/scripts/flashtool.py --build_dir ${workspaceFolder}/out --elf_path ${command:cmake.getLaunchTargetDirectory}",
+            // "command": "python3 ${workspaceFolder}/coralmicro/scripts/flashtool.py --build_dir ${workspaceFolder}/out --elf_path ${workspaceFolder}/out/generator/generator",
+            "command": "python3 ${workspaceFolder}/coralmicro/scripts/flashtool.py --build_dir ${workspaceFolder}/out --elf_path ${command:cmake.launchTargetPath}",
             "group": {
                 "kind": "build",
                 "isDefault": true
