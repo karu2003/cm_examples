@@ -27,14 +27,14 @@
             "reveal": "silent"
           }
         },
-      //   {
-      //     "label": "build",
-      //     "type": "shell",
-      //     "command": "make -C out -j8",
-      //     "group": {
-      //         "kind": "build",
-      //         "isDefault": true
-      //     }
-      // }
+        // {
+        //   "label": "build",
+        //   "type": "shell",
+        //   "command": "make -C out -j8",
+        //   "group": {
+        //       "kind": "build",
+        //       "isDefault": true
+        //   }
+        // }
     ]
 }

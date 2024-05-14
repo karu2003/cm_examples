@@ -29,6 +29,9 @@ make -C out -j8
 To maximize your CPU usage, replace `-j8` with either `-j$(nproc)` on Linux or
 `-j$(sysctl -n hw.ncpu)` on Mac.
 
+### 2.1 Build in VS code
+use only release configuration
+
 
 ## 3. Flash it to your board
 
