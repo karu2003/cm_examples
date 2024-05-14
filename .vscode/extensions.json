@@ -1,0 +1,16 @@
+{
+    "recommendations": [
+	"GitHub.copilot",
+	"GitHub.copilot-chat",
+	"ms-python.black-formatter",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "L13RARY.l13-diff",
+        "mechatroner.rainbow-csv",
+        "ms-azuretools.vscode-docker",
+        "moshfeu.compare-folders",
+        "eamodio.gitlens",
+        "huizhou.githd",
+        "mhutchie.git-graph",
+    ]
+}
