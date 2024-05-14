@@ -14,6 +14,7 @@ import contextlib
 import socket
 import struct
 import helper as hlp
+import errno
 
 from params import GenParameterTree
 from argparse_gen import ArgumentParserClass
@@ -37,21 +38,21 @@ class MainWindow(uiclass, baseclass, object):
         self.send_data = hlp.pack_data(self.send_data, self.g_start)
 
         self.sock = socket.socket()
-        self.sock.settimeout(10)
-        try:
-            self.sock.connect(
-                (self.tree.p.param("host").value(), self.tree.p.param("port").value())
-            )
-        except (TimeoutError, ConnectionError) as e:
-            msg = (
-                "Cannot connect to Coral Dev Board Micro, make sure you specify"
-                " the correct IP address with --host."
-            )
-            if sys.platform == "darwin":
-                msg += " Network over USB is not supported on macOS."
-            raise RuntimeError(msg) from e
+        # self.sock.settimeout(10)
+        # try:
+        #     self.sock.connect(
+        #         (self.tree.p.param("host").value(), self.tree.p.param("port").value())
+        #     )
+        # except (TimeoutError, ConnectionError) as e:
+        #     msg = (
+        #         "Cannot connect to Coral Dev Board Micro, make sure you specify"
+        #         " the correct IP address with --host."
+        #     )
+        #     if sys.platform == "darwin":
+        #         msg += " Network over USB is not supported on macOS."
+        #     raise RuntimeError(msg) from e
 
-        self.sock.settimeout(None)
+        # self.sock.settimeout(None)
 
         # self.send = self.sock.send(self.send_data)
 
@@ -72,24 +73,42 @@ class MainWindow(uiclass, baseclass, object):
         self.tree.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.vlay_tree.addWidget(self.tree, stretch=7)
         # self.vlay_tree.addStretch()
-        self.button = QtWidgets.QPushButton("Start")
+        self.button = QtWidgets.QPushButton("Run")
         self.button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.button.clicked.connect(self.ButtonStart)
         self.vlay_tree.addWidget(self.button, stretch=1)
         # self.vlay_tree.addStretch()
 
     def ButtonStart(self):
-        print("Start")
-        self.sock.settimeout(None)
+        text = self.button.text()
+        
+        if text == "Run":
+            self.g_start = 1
+            self.button.setText("Stop")
+        else:
+            self.g_start = 0
+            self.button.setText("Run")
+
         # print(self.tree.p.param("phi").value())
         # self.tree.p.param("phi").setValue(360.0)
         self.send_data = self.tree.get_params()
         self.send_data = hlp.pack_data(self.send_data, self.g_start)
-        self.send = self.sock.send(self.send_data)
         self.tree.save_to_yaml(filename)
+        self.send = 1
+        self.send = self.sock.send(self.send_data)
 
     def update(self):
-        pass
+        try:
+            if self.send:
+                self.send = self.sock.send(self.send_data)
+                self.send = 0
+        except socket.error as e:
+            # If the socket is broken, print the error and reconnect
+            print("Reconnecting...")
+            self.sock.settimeout(10)
+            self.sock.connect(
+                (self.tree.p.param("host").value(), self.tree.p.param("port").value())
+            )
 
     def start(self):
         self.app.exec_()
