@@ -99,9 +99,10 @@
     "cmake.sourceDirectory": "${workspaceFolder}",
     // "cmake.cmakePath": "/snap/bin", 
     "cmake.configureSettings": {
-        "CMAKE_BUILD_TYPE": "Debug",
+        // "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${CMAKE_CURRENT_LIST_DIR}/coralmicro/cmake/toolchain-arm-none-eabi-gcc.cmake"
+        // "cmake.configureArgs": ["-B out -S ."],
+        "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/coralmicro/cmake/toolchain-arm-none-eabi-gcc.cmake"
     },
     "cmake.buildDirectory": "${workspaceFolder}/out",
     "cmake.configureOnOpen": true
