@@ -76,8 +76,6 @@ void generator_task(void* param) {
     printf("[M4] Started, Signal Genarator \r\n");
     LedSet(Led::kStatus, true);
     // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
-    // add function DacTimerInit() to the generator_task
-
 
     // coralmicro::nSamp = chirpGen(SAMLERATE, duration, f0, f1, 1.0, 0., &chirpform);
     // coralmicro::DacTimerInit();
