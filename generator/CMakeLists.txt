@@ -11,6 +11,8 @@ target_link_libraries(generator
 
 add_executable_m4(generator_m4
     generator_cm4.cc
+    ../dac_out/chirp.h
+    ../dac_out/dac_timer.cc
 )
 
 target_link_libraries(generator_m4

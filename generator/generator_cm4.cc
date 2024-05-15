@@ -24,7 +24,6 @@
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
 #include "third_party/freertos_kernel/include/timers.h"
-// add dac_timer.h and chirp.h to the includes
 #include "../dac_out/dac_timer.h"
 #include "../dac_out/chirp.h"
 
@@ -77,8 +76,8 @@ void generator_task(void* param) {
     LedSet(Led::kStatus, true);
     // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
 
-    // coralmicro::nSamp = chirpGen(SAMLERATE, duration, f0, f1, 1.0, 0., &chirpform);
-    // coralmicro::DacTimerInit();
+    // nSamp = chirpGen(SAMLERATE, duration, f0, f1, 1.0, 0., &chirpform);
+    // DacTimerInit();
 
     while (true) {
         if (TimerMicros() - lastMicros_Led >= LED_TIME) {
