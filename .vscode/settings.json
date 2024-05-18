@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.py": "python",
         "any": "cpp",
         "array": "cpp",
         "atomic": "cpp",
@@ -90,7 +91,8 @@
         "spanstream": "cpp",
         "stacktrace": "cpp",
         "stop_token": "cpp",
-        "syncstream": "cpp"
+        "syncstream": "cpp",
+        "fsl_gpt.h": "c"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"

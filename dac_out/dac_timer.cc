@@ -1,6 +1,6 @@
 #include "libs/base/analog.h"
 #include "libs/base/check.h"
-#include "libs/base/timer.h"
+// #include "libs/base/timer.h"
 #include "third_party/modified/nxp/rt1176-sdk/fsl_tickless_gpt.h"
 #include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/drivers/fsl_gpt.h"
 #include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/drivers/fsl_snvs_hp.h"
@@ -14,6 +14,8 @@ volatile uint16_t *chirpform;
 volatile uint32_t nStep = 0;
 volatile uint32_t Dir = 1;
 volatile uint32_t nSamp = 0;
+
+
 
 void DacTimerInit() {
     gpt_config_t gpt_config;
@@ -31,12 +33,14 @@ void DacTimerInit() {
     EnableIRQ(GPT6_IRQn);
     GPT_StartTimer(GPT6);
 
+#if (__CORTEX_M == 7)
     snvs_hp_rtc_config_t hp_rtc_config;
     snvs_lp_srtc_config_t lp_rtc_config;
     SNVS_HP_RTC_GetDefaultConfig(&hp_rtc_config);
     SNVS_LP_SRTC_GetDefaultConfig(&lp_rtc_config);
     SNVS_HP_RTC_Init(SNVS, &hp_rtc_config);
     SNVS_LP_SRTC_Init(SNVS, &lp_rtc_config);
+#endif
 
     DacInit();
     DacWrite(0);

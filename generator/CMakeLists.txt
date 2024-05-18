@@ -18,5 +18,4 @@ add_executable_m4(generator_m4
 
 target_link_libraries(generator_m4
     libs_base-m4_freertos
-    # ../dac_out/
 )

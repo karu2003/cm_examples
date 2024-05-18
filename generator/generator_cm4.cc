@@ -42,8 +42,6 @@ bool volatile g_switch_to_m7_signal = false;
 static float duration = 1.0f;
 static float f0 = 7000.0f;
 static float f1 = 17000.0f;
-// float *chirpform;
-u_int32_t nSamp = 0;
 #define SAMLERATE 200000.
 
 
@@ -65,6 +63,8 @@ void HandleM7_Message(const uint8_t data[kIpcMessageBufferDataSize]) {
     if (app_msg->type == GeneratorMessageType::kSetStatus) {
         g_DAC_Settings = app_msg->Settings;
         Print_Message();
+        // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
+        nSamp = chirpGen(g_DAC_Settings.Samlerate, g_DAC_Settings.Duration, g_DAC_Settings.F0, g_DAC_Settings.F1, 1.0, 0., &chirpform);
 
         IpcMessage ack_msg{};
         ack_msg.type = IpcMessageType::kApp;
@@ -81,20 +81,11 @@ void generator_task(void* param) {
     lastMicros_Led = TimerMicros();
     printf("[M4] Started, Signal Genarator \r\n");
     LedSet(Led::kStatus, true);
+    TimerInit();
     // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
-
-    nSamp = chirpGen(SAMLERATE, duration, f0, f1, 1.0, 0., &chirpform);
+    // nSamp = chirpGen(SAMLERATE, duration, f0, f1, 1.0, 0., &chirpform);
     DacTimerInit();
 
-    // DAC12_GetDefaultConfig(&dacConfig);
-    // DAC12_Init(DAC, &dacConfig);
-    // DAC12_Enable(DAC, true);
-    // uint16_t value = 0x123; // Replace with your value
-    // DAC12_SetData(DAC, value);
-
-    // DacInit();
-    // DacWrite(0);
-    // DacEnable(true);
 
     while (true) {
         if (TimerMicros() - lastMicros_Led >= LED_TIME) {

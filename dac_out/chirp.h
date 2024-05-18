@@ -31,7 +31,7 @@ inline void linspace(float a, float b, uint32_t c, float **linspaced) {
 }
 
 inline uint32_t genSampTbl(float freq, float fSamp, float amp, float offset,
-                           uint16_t **waveform) {
+                           volatile uint16_t **waveform) {
   uint32_t nSamp, i;
   nSamp = lrint(fSamp / freq);
   *waveform = new uint16_t[nSamp];
