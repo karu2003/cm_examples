@@ -45,46 +45,53 @@ static float f0 = 7000.0f;
 static float f1 = 17000.0f;
 float *chirpform_F;
 bool on = true;
+float SampleRate = 200000.0f;
 }  // namespace
 
 [[noreturn]] void Main() {
-  lastMicros_Led = TimerMicros();
-  printf("DAC output Example!\r\n");
+    lastMicros_Led = TimerMicros();
+    printf("DAC output Example!\r\n");
 
-  // GpioConfigureInterrupt(
-  //     Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
-  //     [handle = xTaskGetCurrentTaskHandle()]() { xTaskResumeFromISR(handle); },
-  //     /*debounce_interval_us=*/50 * 1e3);
+    // GpioConfigureInterrupt(
+    //     Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
+    //     [handle = xTaskGetCurrentTaskHandle()]() {
+    //     xTaskResumeFromISR(handle); },
+    //     /*debounce_interval_us=*/50 * 1e3);
 
-  LedSet(Led::kStatus, on);
+    LedSet(Led::kStatus, on);
 
-  // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
-  nSamp = chirpGen(SAMLERATE, duration, f0, f1, 1.0, 0., &chirpform);
+    // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
+    nSamp = chirpGen(SampleRate, duration, f0, f1, 1.0, 0., &chirpform);
 
-  // nSamp = lchirp(SAMLERATE, duration, f0, f1, &chirpform_F);
-  // chirpform = new uint16_t[nSamp];
-  // for (int i = 0; i < nSamp; i++) {
-  //   (chirpform)[i] = (uint16_t)(DAC_OFF + DAC_OFF * (chirpform_F)[i]);
-  // }
+    // nSamp = lchirp(SAMLERATE, duration, f0, f1, &chirpform_F);
+    // chirpform = new uint16_t[nSamp];
+    // for (int i = 0; i < nSamp; i++) {
+    //   (chirpform)[i] = (uint16_t)(DAC_OFF + DAC_OFF * (chirpform_F)[i]);
+    // }
 
-  DacTimerInit();
+    DacTimerInit(SampleRate);
 
-  while (true) {
-    // vTaskSuspend(nullptr);
-    // serial_Plot_U(chirpform,nSamp);
+    while (true) {
+        // vTaskSuspend(nullptr);
+        // serial_Plot_U(chirpform,nSamp);
 
-    if (TimerMicros() - lastMicros_Led >= LED_TIME) {
-      lastMicros_Led = TimerMicros();
-      on = !on;
-      LedSet(Led::kUser, on);
-      // printf("LED: %s\r\n", on ? "on" : "off");
-  }
-}
-  // [end-sphinx-snippet:dac_out]
+        if (TimerMicros() - lastMicros_Led >= LED_TIME) {
+            lastMicros_Led = TimerMicros();
+            on = !on;
+            LedSet(Led::kUser, on);
+            if (on) {
+                SetSampleRate(100000.);
+            } else {
+                SetSampleRate(200000.);
+            }
+            // printf("LED: %s\r\n", on ? "on" : "off");
+        }
+    }
+    // [end-sphinx-snippet:dac_out]
 }  // namespace
 }  // namespace coralmicro
 
 extern "C" void app_main(void *param) {
-  (void)param;
-  coralmicro::Main();
+    (void)param;
+    coralmicro::Main();
 }

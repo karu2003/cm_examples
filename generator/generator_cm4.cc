@@ -14,22 +14,20 @@
 
 #include <cstdio>
 
-#include "libs/base/analog.h"
-
 #include "generator_message.h"
+#include "libs/base/analog.h"
 #include "libs/base/ipc_m4.h"
 #include "libs/base/led.h"
 #include "libs/base/main_freertos_m4.h"
 // #include "libs/base/mutex.h"
+#include "../dac_out/chirp.h"
+#include "../dac_out/dac_timer.h"
 #include "libs/base/tasks.h"
 #include "libs/base/timer.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
 #include "third_party/freertos_kernel/include/timers.h"
-#include "../dac_out/dac_timer.h"
-#include "../dac_out/chirp.h"
 // #include "fsl_dac12.h"
-
 
 namespace coralmicro {
 namespace {
@@ -43,7 +41,6 @@ static float duration = 1.0f;
 static float f0 = 7000.0f;
 static float f1 = 17000.0f;
 #define SAMLERATE 200000.
-
 
 void Print_Message() {
     printf("[M4] Samlerate %f\r\n", g_DAC_Settings.Samlerate);
@@ -64,7 +61,9 @@ void HandleM7_Message(const uint8_t data[kIpcMessageBufferDataSize]) {
         g_DAC_Settings = app_msg->Settings;
         Print_Message();
         // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
-        nSamp = chirpGen(g_DAC_Settings.Samlerate, g_DAC_Settings.Duration, g_DAC_Settings.F0, g_DAC_Settings.F1, 1.0, 0., &chirpform);
+        nSamp =
+            chirpGen(g_DAC_Settings.Samlerate, g_DAC_Settings.Duration,
+                     g_DAC_Settings.F0, g_DAC_Settings.F1, 1.0, 0., &chirpform);
 
         IpcMessage ack_msg{};
         ack_msg.type = IpcMessageType::kApp;
@@ -84,8 +83,7 @@ void generator_task(void* param) {
     TimerInit();
     // nSamp = genSampTbl(f0, SAMLERATE, 1., 0, &chirpform);
     // nSamp = chirpGen(SAMLERATE, duration, f0, f1, 1.0, 0., &chirpform);
-    DacTimerInit();
-
+    DacTimerInit(SAMLERATE);
 
     while (true) {
         if (TimerMicros() - lastMicros_Led >= LED_TIME) {
