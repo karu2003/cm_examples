@@ -81,4 +81,16 @@ inline uint32_t lchirp(float fSamp, float duration, float f0, float f1,
   return nSamp;
 }
 
+double* GenChirpSignal(int n, double f0, double f1, double sampleRate)
+{
+    // Generate the chirp signal
+    double T = n / sampleRate;
+    double* chirp = new double[n];
+    for (int i = 0; i < n; ++i) {
+        double t = i * T / n;
+        chirp[i] = sin(2 * M_PI * (f0 * t + (f1 - f0) * t * t / (2 * T)));
+    }
+    return chirp;
+}
+
 #endif  // DAC_OUT_H_

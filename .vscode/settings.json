@@ -92,7 +92,10 @@
         "stacktrace": "cpp",
         "stop_token": "cpp",
         "syncstream": "cpp",
-        "fsl_gpt.h": "c"
+        "fsl_gpt.h": "c",
+        "dense": "cpp",
+        "netfwd": "cpp",
+        "hash_map": "cpp"
     },
     "[cpp]": {
         "editor.defaultFormatter": "xaver.clang-format"
