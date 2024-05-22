@@ -26,8 +26,9 @@
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
 #include "third_party/freertos_kernel/include/timers.h"
+#include "wavelet.h"
 
-// writes it to the DAC (pin 9 on the right-side header).
+// writes it to the DAC (pin 9 on the right-side header ).
 // Note: The DAC outputs a max of 1.8V.
 //
 // To build and flash from coralmicro root:
@@ -108,6 +109,19 @@ float SampleRate = 200000.0f;
     double *chirp = GenChirpSignal(nSamp, f0, f1, SampleRate);
     double *chirpL = GenChirpSignal(nSamp, f1, f0, SampleRate);
 
+    std::complex<double> *wavelet = generateMorletWavelet_F(nSamp,SampleRate,100000.);
+    std::vector<double> realPart(nSamp), imagPart(nSamp);
+    for (int i = 0; i < nSamp; i++) {
+        realPart[i] = wavelet[i].real();
+        // imagPart[i] = wavelet[i].imag();
+    }
+    std::complex<double> *wavelet5 = generateMorletWavelet_F(nSamp,SampleRate,50000.);
+    std::vector<double> realPart5(nSamp), imagPart5(nSamp);
+    for (int i = 0; i < nSamp; i++) {
+        realPart5[i] = wavelet5[i].real();
+        // imagPart5[i] = wavelet[i].imag();
+    }
+
     while (true) {
         // vTaskSuspend(nullptr);
         // serial_Plot_U(chirpform,nSamp);
@@ -119,11 +133,13 @@ float SampleRate = 200000.0f;
             if (on) {
                 normalized_autocorrelation(signal2, nSamp, autocorrelation);
                 // serial_Plot_Proc(autocorrelation, 2 * nSamp - 1);
-                serial_Plot_Proc(autocorrelation,nSamp);
-                
+                // serial_Plot_Proc(autocorrelation, nSamp);
+
                 // std::vector<double> norm_chirp = normalized(chirp, nSamp);
                 // double *crossCorr = crossCorrelation(norm_chirp.data(), norm_chirp.data(), nSamp);
                 // serial_Plot_Proc(crossCorr, nSamp);
+
+                serial_Plot_Proc(realPart.data(), nSamp);
 
             } else {
                 for (uint32_t i = 0; i < nSamp; i++) {
@@ -132,7 +148,9 @@ float SampleRate = 200000.0f;
                 normalized_cross_correlation(signal2, signal1, nSamp, autocorrelation);
                 // normalized_cross_correlation(chirp, chirp, nSamp, autocorrelation);
                 // serial_Plot_Proc(autocorrelation, 2 * nSamp - 1);
-                serial_Plot_Proc(autocorrelation, nSamp);
+                // serial_Plot_Proc(autocorrelation, nSamp);
+
+                serial_Plot_Proc(realPart5.data(), nSamp);
             }
         }
     }

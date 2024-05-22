@@ -18,6 +18,7 @@ add_executable_m7(dac_out
     splot.h
     dac_timer.cc
     correlation.cc
+    wavelet.cc
 )
 
 target_link_libraries(dac_out
