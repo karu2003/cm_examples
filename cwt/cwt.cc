@@ -91,3 +91,70 @@ int main() {
 
     return 0;
 }
+
+// Power
+std::vector<double> calculatePowerSpectrum(std::complex<double>** cwt, int n, int numScales) {
+    std::vector<double> powerSpectrum(n, 0.0);
+    for (int i = 0; i < n; i++) {
+        for (int s = 0; s < numScales; s++) {
+            double magnitude = std::abs(cwt[s][i]);
+            powerSpectrum[i] += magnitude * magnitude;
+        }
+    }
+    return powerSpectrum;
+}
+
+int main() {
+    // ...
+
+    // Perform the CWT
+    std::complex<double>** cwt = performCWT(signal, n, sampleRate, numScales);
+
+    // Calculate the power spectrum
+    std::vector<double> powerSpectrum = calculatePowerSpectrum(cwt, n, numScales);
+
+    // Don't forget to delete the signal and cwt arrays
+    delete[] signal;
+    for (int s = 0; s < numScales; s++) {
+        delete[] cwt[s];
+    }
+    delete[] cwt;
+
+    return 0;
+}
+
+// Plot the power spectrum
+
+#include "matplotlibcpp.h"
+#include <vector>
+
+namespace plt = matplotlibcpp;
+
+// ...
+
+void plotPowerSpectrum(const std::vector<double>& powerSpectrum) {
+    plt::plot(powerSpectrum);
+    plt::title("Power Spectrum");
+    plt::xlabel("Frequency");
+    plt::ylabel("Power");
+    plt::show();
+}
+
+int main() {
+    // ...
+
+    // Calculate the power spectrum
+    std::vector<double> powerSpectrum = calculatePowerSpectrum(cwt, n, numScales);
+
+    // Plot the power spectrum
+    plotPowerSpectrum(powerSpectrum);
+
+    // Don't forget to delete the signal and cwt arrays
+    delete[] signal;
+    for (int s = 0; s < numScales; s++) {
+        delete[] cwt[s];
+    }
+    delete[] cwt;
+
+    return 0;
+}
