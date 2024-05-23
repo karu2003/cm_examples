@@ -85,7 +85,7 @@ clean: CMakeFiles/imshow.dir/clean
 CMakeFiles/test_cwt.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwt.dir/build.make CMakeFiles/test_cwt.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwt.dir/build.make CMakeFiles/test_cwt.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles --progress-num=7,8,9,10 "Built target test_cwt"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles --progress-num=6,7,8,9 "Built target test_cwt"
 .PHONY : CMakeFiles/test_cwt.dir/all
 
 # Build rule for subdir invocation for target.
@@ -111,12 +111,12 @@ CMakeFiles/test_cwt.dir/clean:
 CMakeFiles/plot_cwt.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/plot_cwt.dir/build.make CMakeFiles/plot_cwt.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/plot_cwt.dir/build.make CMakeFiles/plot_cwt.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles --progress-num=3,4,5,6 "Built target plot_cwt"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles --progress-num=3,4,5 "Built target plot_cwt"
 .PHONY : CMakeFiles/plot_cwt.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/plot_cwt.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/andrew/src/cm_examples/cwt/test/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/andrew/src/cm_examples/cwt/test/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/plot_cwt.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/andrew/src/cm_examples/cwt/test/build/CMakeFiles 0
 .PHONY : CMakeFiles/plot_cwt.dir/rule

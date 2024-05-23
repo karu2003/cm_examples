@@ -1,11 +1,11 @@
 // #include <Eigen/Dense>
 #include <cmath>
+#include <math.h>
 #include <complex>
 #include <cstdint>
 
 #include "../../lib/matplotlibcpp/matplotlibcpp.h"
 #include "../cwt.h"
-#include "../dac_out/chirp.h"
 #include "pybind11/embed.h"
 
 namespace plt = matplotlibcpp;
@@ -28,6 +28,15 @@ void plotCWT(std::complex<double>** cwt, int n, int numScales) {
 
         plt::imshow(flatMagnitudePtr, numScales, n, 1);
         plt::show();
+    }
+}
+
+void generateChirp(double* signal, int n, double sampleRate, double startFrequency, double endFrequency) {
+    double T = static_cast<double>(n) / sampleRate;  // Total time
+    for (int i = 0; i < n; i++) {
+        double t = static_cast<double>(i) / sampleRate;  // Current time
+        double f = startFrequency + (endFrequency - startFrequency) * t / T;  // Current frequency
+        signal[i] = std::sin(2.0 * M_PI * f * t);
     }
 }
 

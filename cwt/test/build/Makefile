@@ -188,7 +188,6 @@ home/andrew/src/cm_examples/dac_out/chirp.o: home/andrew/src/cm_examples/dac_out
 # target to build an object file
 home/andrew/src/cm_examples/dac_out/chirp.cc.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwt.dir/build.make CMakeFiles/test_cwt.dir/home/andrew/src/cm_examples/dac_out/chirp.cc.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/plot_cwt.dir/build.make CMakeFiles/plot_cwt.dir/home/andrew/src/cm_examples/dac_out/chirp.cc.o
 .PHONY : home/andrew/src/cm_examples/dac_out/chirp.cc.o
 
 home/andrew/src/cm_examples/dac_out/chirp.i: home/andrew/src/cm_examples/dac_out/chirp.cc.i
@@ -197,7 +196,6 @@ home/andrew/src/cm_examples/dac_out/chirp.i: home/andrew/src/cm_examples/dac_out
 # target to preprocess a source file
 home/andrew/src/cm_examples/dac_out/chirp.cc.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwt.dir/build.make CMakeFiles/test_cwt.dir/home/andrew/src/cm_examples/dac_out/chirp.cc.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/plot_cwt.dir/build.make CMakeFiles/plot_cwt.dir/home/andrew/src/cm_examples/dac_out/chirp.cc.i
 .PHONY : home/andrew/src/cm_examples/dac_out/chirp.cc.i
 
 home/andrew/src/cm_examples/dac_out/chirp.s: home/andrew/src/cm_examples/dac_out/chirp.cc.s
@@ -206,7 +204,6 @@ home/andrew/src/cm_examples/dac_out/chirp.s: home/andrew/src/cm_examples/dac_out
 # target to generate assembly for a file
 home/andrew/src/cm_examples/dac_out/chirp.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwt.dir/build.make CMakeFiles/test_cwt.dir/home/andrew/src/cm_examples/dac_out/chirp.cc.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/plot_cwt.dir/build.make CMakeFiles/plot_cwt.dir/home/andrew/src/cm_examples/dac_out/chirp.cc.s
 .PHONY : home/andrew/src/cm_examples/dac_out/chirp.cc.s
 
 imshow.o: imshow.cc.o

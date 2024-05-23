@@ -22,7 +22,7 @@ add_executable(test_cwt
 add_executable(plot_cwt
     plot_cwt.cc
     ../cwt.cc
-    ../../dac_out/chirp.cc)
+    )
 
 add_executable(imshow
     imshow.cc)
