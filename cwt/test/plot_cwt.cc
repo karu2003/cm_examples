@@ -1,4 +1,4 @@
-#include <Eigen/Dense>
+// #include <Eigen/Dense>
 #include <cmath>
 #include <complex>
 #include <cstdint>
@@ -6,33 +6,11 @@
 #include "../../lib/matplotlibcpp/matplotlibcpp.h"
 #include "../cwt.h"
 #include "../dac_out/chirp.h"
+#include "pybind11/embed.h"
 
 namespace plt = matplotlibcpp;
 
 void plotCWT(std::complex<double>** cwt, int n, int numScales) {
-    // // Convert the CWT results to magnitude
-    // std::vector<std::vector<double>> magnitude(numScales, std::vector<double>(n));
-    // for (int s = 0; s < numScales; s++) {
-    //     for (int i = 0; i < n; i++) {
-    //         magnitude[s][i] = std::abs(cwt[s][i]);
-    //     }
-    // }
-
-    // Eigen::MatrixXd magnitude(numScales, n);
-    // for (int s = 0; s < numScales; s++) {
-    //     for (int i = 0; i < n; i++) {
-    //         magnitude(s, i) = std::abs(cwt[s][i]);
-    //     }
-    // }
-
-    // double** magnitude = new double*[numScales];
-    // for (int s = 0; s < numScales; s++) {
-    //     magnitude[s] = new double[n];
-    //     for (int i = 0; i < n; i++) {
-    //         magnitude[s][i] = std::abs(cwt[s][i]);
-    //     }
-    // }
-
     std::vector<std::vector<float>> magnitude(numScales, std::vector<float>(n));
     for (int s = 0; s < numScales; s++) {
         for (int i = 0; i < n; i++) {
@@ -40,23 +18,17 @@ void plotCWT(std::complex<double>** cwt, int n, int numScales) {
         }
     }
 
-    // Convert the magnitude to an Eigen::MatrixXd
-    // Eigen::MatrixXd mat(numScales, n);
-    // for (int s = 0; s < numScales; s++) {
-    //     for (int i = 0; i < n; i++) {
-    //         mat(s, i) = magnitude[s][i];
-    //     }
-    // }
+    std::vector<float> flatMagnitude;
+    for (const auto& row : magnitude) {
+        flatMagnitude.insert(flatMagnitude.end(), row.begin(), row.end());
+    }
 
-    // plt::imshow(magnitude, 1, plt::colormaps::jet);
-    // pybind11::exec(R"(import matplotlib.pyplot as plt plt.set_cmap('jet'))");
-    // plt::imshow(magnitude, 1);
+    if (!flatMagnitude.empty()) {
+        const float* flatMagnitudePtr = flatMagnitude.data();
 
-    const float* magnitude_ptr = &(magnitude[0]);
-    plt::imshow(magnitude_ptr);
-    // plt::imshow(mat);
-    plt::colorbar();
-    plt::show();
+        plt::imshow(flatMagnitudePtr, numScales, n, 1);
+        plt::show();
+    }
 }
 
 int main() {
@@ -70,11 +42,17 @@ int main() {
     double* signal = new double[n];
     generateChirp(signal, n, sampleRate, startFrequency, endFrequency);
 
+    std::vector<double> signalVector(signal, signal + n);
+
+    plt::plot(signalVector);
+    plt::show();
+
     // Perform the CWT
     std::complex<double>** cwt = performCWT(signal, n, sampleRate, numScales);
 
-    // Plot the CWT results
-    plotCWT(cwt, n, numScales);
+    if (cwt != nullptr) {
+        plotCWT(cwt, n, numScales);
+    }
 
     // Don't forget to delete the signal and cwt arrays
     delete[] signal;

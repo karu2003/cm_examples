@@ -529,3 +529,44 @@ events:
       
       
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "/usr/lib/cmake/pybind11/pybind11Common.cmake:276 (check_cxx_compiler_flag)"
+      - "/usr/lib/cmake/pybind11/pybind11Common.cmake:318 (_pybind11_return_if_cxx_and_linker_flags_work)"
+      - "/usr/lib/cmake/pybind11/pybind11Common.cmake:385 (_pybind11_generate_lto)"
+      - "/usr/lib/cmake/pybind11/pybind11Config.cmake:250 (include)"
+      - "CMakeLists.txt:14 (find_package)"
+    checks:
+      - "Performing Test HAS_FLTO"
+    directories:
+      source: "/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/CMakeScratch/TryCompile-UuPZH5"
+      binary: "/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/CMakeScratch/TryCompile-UuPZH5"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAS_FLTO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/CMakeScratch/TryCompile-UuPZH5'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b66c6/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b66c6.dir/build.make CMakeFiles/cmTC_b66c6.dir/build
+        gmake[1]: Entering directory '/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/CMakeScratch/TryCompile-UuPZH5'
+        Building CXX object CMakeFiles/cmTC_b66c6.dir/src.cxx.o
+        /usr/bin/c++ -DHAS_FLTO  -std=gnu++14   -flto -fno-fat-lto-objects -o CMakeFiles/cmTC_b66c6.dir/src.cxx.o -c /home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/CMakeScratch/TryCompile-UuPZH5/src.cxx
+        Linking CXX executable cmTC_b66c6
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b66c6.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_b66c6.dir/src.cxx.o -o cmTC_b66c6  -flto 
+        gmake[1]: Leaving directory '/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/CMakeScratch/TryCompile-UuPZH5'
+        
+      exitCode: 0
+...

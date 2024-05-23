@@ -11,6 +11,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../dac_out/)
 
+find_package(pybind11 REQUIRED)
+
 
 add_executable(test_cwt
     test_cwt.cc
@@ -28,12 +30,9 @@ add_executable(imshow
 include_directories("../../lib/eigen-3.4")
 include_directories("../../lib/matplotlibcpp")
 include_directories("/usr/lib/python3/dist-packages/numpy/core/include")
-# add_subdirectory(${CMAKE_SOURCE_DIR}/../../lib/matplotlibcpp)
 
-# target_link_libraries(test_cwt ${PYTHON_LIBRARIES})
-# target_link_libraries(imshow  ${PYTHON_LIBRARIES})
-# target_link_libraries(test_cwt Python3::Python)
 target_link_libraries(imshow Python3::Python)
-target_link_libraries(plot_cwt Python3::Python)
+target_link_libraries(plot_cwt Python3::Python pybind11::embed)
+
 
 

@@ -67,3 +67,5 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
 sudo make install
+
+sudo apt-get install pybind11-dev
