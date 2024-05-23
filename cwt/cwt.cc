@@ -1,15 +1,7 @@
 #include <cmath>
 #include <complex>
-
-// Generate a linear chirp signal
-void generateChirp(double* signal, int n, double sampleRate, double startFrequency, double endFrequency) {
-    double chirpRate = (endFrequency - startFrequency) / n;
-    for (int i = 0; i < n; i++) {
-        double t = i / sampleRate;
-        double frequency = startFrequency + chirpRate * t;
-        signal[i] = sin(2 * M_PI * frequency * t);
-    }
-}
+#include <vector>
+#include "cwt.h"
 
 // Perform the CWT
 std::complex<double>** performCWT(double* signal, int n, double sampleRate, int numScales) {
@@ -27,71 +19,6 @@ std::complex<double>** performCWT(double* signal, int n, double sampleRate, int 
     return cwt;
 }
 
-int main() {
-    int n = 1000;  // Number of points
-    double sampleRate = 44100.0;  // Sample rate in Hz
-    double startFrequency = 1000.0;  // Start frequency of the chirp in Hz
-    double endFrequency = 20000.0;  // End frequency of the chirp in Hz
-    int numScales = 100;  // Number of scales for the CWT
-
-    // Generate the chirp signal
-    double* signal = new double[n];
-    generateChirp(signal, n, sampleRate, startFrequency, endFrequency);
-
-    // Perform the CWT
-    std::complex<double>** cwt = performCWT(signal, n, sampleRate, numScales);
-
-    // Don't forget to delete the signal and cwt arrays
-    delete[] signal;
-    for (int s = 0; s < numScales; s++) {
-        delete[] cwt[s];
-    }
-    delete[] cwt;
-
-    return 0;
-}
-
-#include "matplotlibcpp.h"
-#include <vector>
-
-namespace plt = matplotlibcpp;
-
-// ...
-
-void plotCWT(std::complex<double>** cwt, int n, int numScales) {
-    // Convert the CWT results to magnitude
-    std::vector<std::vector<double>> magnitude(numScales, std::vector<double>(n));
-    for (int s = 0; s < numScales; s++) {
-        for (int i = 0; i < n; i++) {
-            magnitude[s][i] = std::abs(cwt[s][i]);
-        }
-    }
-
-    // Plot the CWT results
-    plt::imshow(magnitude, 1, plt::colormaps::jet);
-    plt::colorbar();
-    plt::show();
-}
-
-int main() {
-    // ...
-
-    // Perform the CWT
-    std::complex<double>** cwt = performCWT(signal, n, sampleRate, numScales);
-
-    // Plot the CWT results
-    plotCWT(cwt, n, numScales);
-
-    // Don't forget to delete the signal and cwt arrays
-    delete[] signal;
-    for (int s = 0; s < numScales; s++) {
-        delete[] cwt[s];
-    }
-    delete[] cwt;
-
-    return 0;
-}
-
 // Power
 std::vector<double> calculatePowerSpectrum(std::complex<double>** cwt, int n, int numScales) {
     std::vector<double> powerSpectrum(n, 0.0);
@@ -104,57 +31,98 @@ std::vector<double> calculatePowerSpectrum(std::complex<double>** cwt, int n, in
     return powerSpectrum;
 }
 
-int main() {
-    // ...
+std::vector<std::complex<double>> generateMorletWavelet_V(int n, double w0) {
+    std::vector<std::complex<double>> wavelet(n);
+    double sigma = 1.0 / (1.0 + std::pow(w0, 2));
+    double constant = 1.0 / std::sqrt(sigma * std::sqrt(M_PI));
 
-    // Perform the CWT
-    std::complex<double>** cwt = performCWT(signal, n, sampleRate, numScales);
-
-    // Calculate the power spectrum
-    std::vector<double> powerSpectrum = calculatePowerSpectrum(cwt, n, numScales);
-
-    // Don't forget to delete the signal and cwt arrays
-    delete[] signal;
-    for (int s = 0; s < numScales; s++) {
-        delete[] cwt[s];
+    for (int i = 0; i < n; i++) {
+        double t = (i - n / 2.0) / (n / 2.0);
+        wavelet[i] = constant * std::exp(-t * t / (2 * sigma)) * std::exp(std::complex<double>(0, w0 * t));
     }
-    delete[] cwt;
 
-    return 0;
+    return wavelet;
 }
 
-// Plot the power spectrum
+std::complex<double>* generateMorletWavelet(int n, double w0) {
+    std::complex<double>* wavelet = new std::complex<double>[n];
+    double sigma = 1.0 / (1.0 + std::pow(w0, 2));
+    double constant = 1.0 / std::sqrt(sigma * std::sqrt(M_PI));
 
-#include "matplotlibcpp.h"
-#include <vector>
+    for (int i = 0; i < n; i++) {
+        double t = (i - n / 2.0) / (n / 2.0);
+        wavelet[i] = constant * std::exp(-t * t / (2 * sigma)) * std::exp(std::complex<double>(0, w0 * t));
+    }
 
-namespace plt = matplotlibcpp;
-
-// ...
-
-void plotPowerSpectrum(const std::vector<double>& powerSpectrum) {
-    plt::plot(powerSpectrum);
-    plt::title("Power Spectrum");
-    plt::xlabel("Frequency");
-    plt::ylabel("Power");
-    plt::show();
+    return wavelet;
 }
 
-int main() {
-    // ...
+std::complex<double>* generateNormalizedMorletWavelet(int n, double w0) {
+    std::complex<double>* wavelet = new std::complex<double>[n];
+    double sigma = 1.0 / (1.0 + std::pow(w0, 2));
+    double constant = 1.0 / std::sqrt(sigma * std::sqrt(M_PI));
 
-    // Calculate the power spectrum
-    std::vector<double> powerSpectrum = calculatePowerSpectrum(cwt, n, numScales);
-
-    // Plot the power spectrum
-    plotPowerSpectrum(powerSpectrum);
-
-    // Don't forget to delete the signal and cwt arrays
-    delete[] signal;
-    for (int s = 0; s < numScales; s++) {
-        delete[] cwt[s];
+    // Calculate the wavelet and its norm
+    double norm = 0.0;
+    for (int i = 0; i < n; i++) {
+        double t = (i - n / 2.0) / (n / 2.0);
+        wavelet[i] = constant * std::exp(-t * t / (2 * sigma)) * std::exp(std::complex<double>(0, w0 * t));
+        norm += std::norm(wavelet[i]);
     }
-    delete[] cwt;
 
-    return 0;
+    // Normalize the wavelet
+    for (int i = 0; i < n; i++) {
+        wavelet[i] /= std::sqrt(norm);
+    }
+
+    return wavelet;
+}
+
+std::complex<double>* generateMaxLeveledMorletWavelet(int n, double w0) {
+    std::complex<double>* wavelet = new std::complex<double>[n];
+    double sigma = 1.0 / (1.0 + std::pow(w0, 2));
+    double constant = 1.0 / std::sqrt(sigma * std::sqrt(M_PI));
+
+    // Calculate the wavelet and its maximum level
+    double maxLevel = 0.0;
+    for (int i = 0; i < n; i++) {
+        double t = (i - n / 2.0) / (n / 2.0);
+        wavelet[i] = constant * std::exp(-t * t / (2 * sigma)) * std::exp(std::complex<double>(0, w0 * t));
+        double level = std::abs(wavelet[i]);
+        if (level > maxLevel) {
+            maxLevel = level;
+        }
+    }
+
+    // Level the wavelet to a maximum of 1
+    for (int i = 0; i < n; i++) {
+        wavelet[i] /= maxLevel;
+    }
+
+    return wavelet;
+}
+
+std::complex<double>* generateMorletWavelet_F(int n, double sampleRate, double frequency) {
+    std::complex<double>* wavelet = new std::complex<double>[n];
+    double w0 = 2 * M_PI * frequency / sampleRate;  // Convert frequency to radian frequency
+    double sigma = 1.0 / (1.0 + std::pow(w0, 2));
+    double constant = 1.0 / std::sqrt(sigma * std::sqrt(M_PI));
+
+    // Calculate the wavelet and its maximum level
+    double maxLevel = 0.0;
+    for (int i = 0; i < n; i++) {
+        double t = (i - n / 2.0) / (n / 2.0);
+        wavelet[i] = constant * std::exp(-t * t / (2 * sigma)) * std::exp(std::complex<double>(0, w0 * t));
+        double level = std::abs(wavelet[i]);
+        if (level > maxLevel) {
+            maxLevel = level;
+        }
+    }
+
+    // Level the wavelet to a maximum of 1
+    for (int i = 0; i < n; i++) {
+        wavelet[i] /= maxLevel;
+    }
+
+    return wavelet;
 }

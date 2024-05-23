@@ -52,3 +52,18 @@ in that guide), the `build_dir` is ommitted because the flashtool uses the local
 by default. Similarly, in-tree examples and apps don't need to specify the ELF file with `elf_path`
 because those files are built in the same build directory—we can instead specify just the project
 name with `--example` (or `-e`) and `--app` (or `-a`) when flashing these in-tree projects.
+
+### how to use matplotlibcpp
+sudo apt-get install python3-dev
+
+Find the location of the numpy headers. You can do this with a Python one-liner:
+python3 -c "import numpy; print(numpy.get_include())"
+This will print the path to the numpy headers.
+include_directories(/path/to/numpy/headers)
+
+git submodule add -b 3.4.0 https://gitlab.com/libeigen/eigen.git lib/eigen-3.4.0
+cd eigen-3.4
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
+sudo make install

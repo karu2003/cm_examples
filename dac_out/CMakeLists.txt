@@ -14,15 +14,11 @@
 
 add_executable_m7(dac_out
     dac_out.cc
-    chirp.h
+    chirp.cc
     splot.h
     dac_timer.cc
-    correlation.cc
-    wavelet.cc
 )
 
 target_link_libraries(dac_out
     libs_base-m7_freertos
 )
-
-include_directories("../lib/eigen-3.4.0")

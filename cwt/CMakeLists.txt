@@ -12,17 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_executable_m7(dac_out
-    dac_out.cc
-    chirp.h
+add_executable_m7(cwt_fw
+    cwt_fw.cc
+    ../dac_out/chirp.cc
     splot.h
-    dac_timer.cc
     correlation.cc
-    wavelet.cc
+    cwt.cc
 )
 
-target_link_libraries(dac_out
+add_executable(test_cwt
+    test/test_cwt.cc
+)
+
+target_link_libraries(cwt_fw
     libs_base-m7_freertos
 )
 
-include_directories("../lib/eigen-3.4.0")

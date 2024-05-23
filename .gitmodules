@@ -1,3 +1,10 @@
 [submodule "coralmicro"]
 	path = coralmicro
 	url = https://github.com/google-coral/coralmicro
+[submodule "lib/matplotlibcpp"]
+	path = lib/matplotlibcpp
+	url = https://github.com/lava/matplotlib-cpp
+[submodule "lib/eigen-3.4"]
+	path = lib/eigen-3.4
+	url = https://gitlab.com/libeigen/eigen.git
+	branch = 3.4
