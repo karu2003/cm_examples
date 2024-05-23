@@ -36,4 +36,5 @@ __pycache__
 *.out
 *.app
 
-/build
+**/.build
+**/build
