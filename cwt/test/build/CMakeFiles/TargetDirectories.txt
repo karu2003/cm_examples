@@ -1,5 +1,0 @@
-/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/test_cwt.dir
-/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/plot_cwt.dir
-/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/imshow.dir
-/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/edit_cache.dir
-/home/andrew/src/cm_examples/cwt/test/build/CMakeFiles/rebuild_cache.dir

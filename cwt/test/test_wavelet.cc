@@ -1,16 +1,15 @@
 #include <cmath>
+#include <math.h>
 #include <complex>
-#include <vector>
+#include <cstdint>
+
+#include "../../lib/matplotlibcpp/matplotlibcpp.h"
 #include "../cwt.h"
-
-
-#include "matplotlibcpp.h"
-#include <vector>
 
 namespace plt = matplotlibcpp;
 
 int n = 1000;  // Number of points
-std::complex<double>* wavelet = generateMorletWavelet(n);
+std::complex<double>* wavelet = generateMorletWavelet(n,5);
 
 // Separate the real and imaginary parts
 std::vector<double> realPart(n), imagPart(n);

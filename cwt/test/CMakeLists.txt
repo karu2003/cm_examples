@@ -24,6 +24,11 @@ add_executable(plot_cwt
     ../cwt.cc
     )
 
+add_executable(plot_wv
+    test_wavelet.cc
+    ../cwt.cc
+    )
+
 add_executable(imshow
     imshow.cc)
 
@@ -33,6 +38,7 @@ include_directories("/usr/lib/python3/dist-packages/numpy/core/include")
 
 target_link_libraries(imshow Python3::Python)
 target_link_libraries(plot_cwt Python3::Python pybind11::embed)
+target_link_libraries(plot_wv Python3::Python)
 
 
 

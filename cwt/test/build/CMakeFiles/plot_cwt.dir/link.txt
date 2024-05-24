@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/plot_cwt.dir/plot_cwt.cc.o CMakeFiles/plot_cwt.dir/home/andrew/src/cm_examples/cwt/cwt.cc.o -o plot_cwt  /usr/lib/x86_64-linux-gnu/libpython3.12.so 
