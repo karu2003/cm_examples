@@ -18,7 +18,6 @@ void linspace(float a, float b, uint32_t c, float **linspaced);
 uint32_t genSampTbl(float freq, float fSamp, float amp, float offset, volatile uint16_t **waveform);
 uint32_t chirpGen(float fSamp, float duration, float start_freq, float end_freq, float amp, float phase, volatile uint16_t **chirpform);
 uint32_t lchirp(float fSamp, float duration, float f0, float f1, float **phi);
-double *GenChirpSignal(int n, double f0, double f1, double sampleRate);
 void generateChirp(double *signal, int n, double sampleRate, double startFrequency, double endFrequency);
 
 

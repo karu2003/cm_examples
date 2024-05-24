@@ -14,5 +14,6 @@
         "mhutchie.git-graph",
         "ms-vscode.cpptools",
         "chiehyu.vscode-astyle",
+        "cheshirekow.cmake-format",
     ]
 }

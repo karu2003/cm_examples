@@ -103,6 +103,12 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
+    // "[cmake]": {
+    //     "editor.defaultFormatter": "ms-vscode.cmake-tools"
+    // },
+    "[cmake]": {
+        "editor.defaultFormatter": "cheshirekow.cmake-format"
+    },
     "python.formatting.provider": "none",
     "cmake.sourceDirectory": "${workspaceFolder}",
     // "cmake.cmakePath": "/snap/bin", 

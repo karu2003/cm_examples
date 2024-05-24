@@ -73,17 +73,6 @@ uint32_t lchirp(float fSamp, float duration, float f0, float f1, float **phi) {
     return nSamp;
 }
 
-// Generate the chirp signal
-double *GenChirpSignal(int n, double f0, double f1, double sampleRate) {
-    double T = n / sampleRate;
-    double *chirp = new double[n];
-    for (int i = 0; i < n; ++i) {
-        double t = i * T / n;
-        chirp[i] = sin(2 * M_PI * (f0 * t + (f1 - f0) * t * t / (2 * T)));
-    }
-    return chirp;
-}
-
 // Generate a linear chirp signal
 void generateChirp(double *signal, int n, double sampleRate, double startFrequency, double endFrequency) {
     double chirpRate = (endFrequency - startFrequency) / n;
