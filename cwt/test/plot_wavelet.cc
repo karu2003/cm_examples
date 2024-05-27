@@ -3,6 +3,7 @@
 #include <cmath>
 #include <complex>
 #include <cstdint>
+#include <utility>
 
 #include "../../lib/matplotlibcpp/matplotlibcpp.h"
 #include "../cwt.h"
@@ -10,14 +11,17 @@
 namespace plt = matplotlibcpp;
 
 int main() {
-    int n = 100;  // Number of points
-    double w0 = 5.0;  // Frequency parameter
-    double sampleRate = 44100.0;  // Sample rate
-    double frequency = 18000.0;  // Frequency
+    int k = 100;                  // Number of points
+    double w0 = 5.0;              // Frequency parameter
+    double sampleRate = 192000.0;  // Sample rate
+    double frequency = 500.0;   // Frequency
 
-
-    // std::complex<double>* wavelet = generateMorletWavelet(n, w0);
-    std::complex<double>* wavelet = generateMorletWaveletFrequency(n, sampleRate, frequency);
+    // std::complex<double>* wavelet = generateMorletWavelet(k, w0);
+    // std::complex<double>* wavelet = generateMorletWaveletFrequency(k, sampleRate, frequency);
+    auto result = generateMorletWaveletFrequency(sampleRate, frequency);
+    std::complex<double>* wavelet = result.first;
+    int n = result.second;
+    printf("n = %d\n", n);
 
     // Separate the real and imaginary parts
     std::vector<double> realPart(n), imagPart(n);
