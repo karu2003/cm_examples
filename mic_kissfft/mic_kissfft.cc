@@ -87,9 +87,9 @@ extern "C" [[noreturn]] void app_main(void *param) {
     }
 
     float max_freq = freqs[max_idx];
-    // printf("Greatest Frequency Component: %0.1f Hz\n\r", max_freq);
-    // printf("calculation time: %lu uS\n\r",
-    // static_cast<uint32_t>(lastMicros));
+    printf("Greatest Frequency Component: %0.1f Hz\n\r", max_freq);
+    printf("calculation time: %lu uS\n\r",
+    static_cast<uint32_t>(lastMicros));
   }
 }
 }  // namespace

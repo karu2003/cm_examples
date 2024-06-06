@@ -96,13 +96,13 @@ inline void serial_Plot_Proc(T *waveform, uint32_t nSamp) {
     }
 }
 
-inline void calculateAndPrint(uint16_t *signal1, uint16_t *signal2, uint32_t nSamp, const std::string &message) {
-    uint64_t lastMicros = coralmicro::TimerMicros();
-    float coeff = find_coefficient(signal1, signal2, nSamp);
-    uint64_t duration_corr = coralmicro::TimerMicros() - lastMicros;
-    printf("%s calculation time : %lu uS\n\r", message.c_str(), static_cast<uint32_t>(duration_corr));
-    printf("%s Corr. coeff: %20f\r\n", message.c_str(), coeff);
-}
+// inline void calculateAndPrint(uint16_t *signal1, uint16_t *signal2, uint32_t nSamp, const std::string &message) {
+//     uint64_t lastMicros = coralmicro::TimerMicros();
+//     float coeff = find_coefficient(signal1, signal2, nSamp);
+//     uint64_t duration_corr = coralmicro::TimerMicros() - lastMicros;
+//     printf("%s calculation time : %lu uS\n\r", message.c_str(), static_cast<uint32_t>(duration_corr));
+//     printf("%s Corr. coeff: %20f\r\n", message.c_str(), coeff);
+// }
 
 inline void print_autocorrelation_to_serial(double *autocorrelation, int n) {
     for (int i = 0; i < n; i++) {

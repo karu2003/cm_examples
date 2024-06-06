@@ -39,12 +39,12 @@ namespace {
 // [start-sphinx-snippet:dac_out]
 
 static uint64_t lastMicros_Led;
-static uint64_t lastMicros;
+// static uint64_t lastMicros;
 #define LED_TIME int(1 * 1000000)
 static float duration = 0.001f;
 static float f0 = 7000.0f;
 static float f1 = 17000.0f;
-float *chirpform_F;
+// float *chirpform_F;
 bool on = true;
 float SampleRate = 200000.0f;
 }  // namespace

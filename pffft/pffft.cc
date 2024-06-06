@@ -1,4 +1,4 @@
-#include "pffft.h"
+#include "pffft.hpp"
 
 #include <limits.h>
 #include <stdio.h>
@@ -17,9 +17,9 @@ extern "C" [[noreturn]] void app_main(void* param) {
     uint64_t lastMicros;
     // initialize input data for FFT
     float input[] = {11.0f, 3.0f, 4.05f, 9.0f, 10.3f, 8.0f, 4.934f, 5.11f};
-    uint16_t nfft = sizeof(input) / sizeof(float);
+    int nfft = sizeof(input) / sizeof(float);
 
-    PFFFT_Setup* setup = pffft_new_setup(N, PFFFT_REAL);
+    PFFFT_Setup* setup = pffft_new_setup(nfft, PFFFT_REAL);
 
     float* cin = new float[nfft];
     float* output = new float[nfft];

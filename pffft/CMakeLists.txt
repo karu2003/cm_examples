@@ -11,13 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# find_library(PFFFT_LIBRARY NAMES pffft PATHS ${CMAKE_SOURCE_DIR}/lib/pffft)
+
+# find_package(PFFFT REQUIRED)
+# include_directories("/path/to/pffft/headers")
+
+# if(NOT PFFFT_LIBRARY)
+#     message(FATAL_ERROR "pffft library not found")
+# endif()
+
+# add_subdirectory("../lib/pffft")
+
+# include("../lib/pffft/CMakeLists.txt")
 
 add_executable_m7(pffft
     pffft.cc
+    ../lib/pffft/pffft.c
 )
 
 target_link_libraries(pffft
     libs_base-m7_freertos
 )
 
-include_directories("../../lib/pffft")
+include_directories("../lib/pffft")
