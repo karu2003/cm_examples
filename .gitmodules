@@ -8,3 +8,6 @@
 	path = lib/eigen-3.4
 	url = https://gitlab.com/libeigen/eigen.git
 	branch = 3.4
+[submodule "lib/pffft"]
+	path = lib/pffft
+	url = https://github.com/msft-takend/pffft
