@@ -10,4 +10,4 @@
 	branch = 3.4
 [submodule "lib/pffft"]
 	path = lib/pffft
-	url = https://github.com/msft-takend/pffft
+	url = https://bitbucket.org/jpommier/pffft.git
