@@ -12,7 +12,7 @@ sample_rate = 96000.
 f0 = 700.0
 f1 = 7000.0
 Pi2 = 2*np.pi
-duration = 0.001
+duration = 0.01
 N = int(sample_rate * duration)
 
 t = np.linspace(0, duration, N)

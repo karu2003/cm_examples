@@ -11,3 +11,6 @@
 [submodule "lib/pffft"]
 	path = lib/pffft
 	url = https://bitbucket.org/jpommier/pffft.git
+[submodule "lib/kissfft"]
+	path = lib/kissfft
+	url = https://github.com/mborgerding/kissfft

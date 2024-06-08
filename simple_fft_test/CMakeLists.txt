@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_executable_m7(twotonetest
+add_executable_m7(simple_fft
     simple_fft_test.cc
     kiss_fft.cpp
     kiss_fftr.cpp
 )
 
-target_link_libraries(twotonetest
+target_link_libraries(simple_fft
     libs_base-m7_freertos
 )
