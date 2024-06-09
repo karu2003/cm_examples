@@ -75,6 +75,7 @@ extern "C" [[noreturn]] void app_main(void *param) {
         /*debounce_interval_us=*/50 * 1e3);
 
     printf("PFFFT: Real FFT\n\r");
+    printf("Press the user button to start the FFT\n\r");
 
     while (true) {
         vTaskSuspend(nullptr);
@@ -121,7 +122,7 @@ extern "C" [[noreturn]] void app_main(void *param) {
         //     }
         // }
 
-        // printf("calculation time: %lu uS amount of points %d\n\r", static_cast<uint32_t>(lastMicros), NSAMP);
+        printf("calculation time: %lu uS amount of points %d\n\r", static_cast<uint32_t>(lastMicros), NSAMP);
     }
     pffft_destroy_setup(setup);
     pffft_aligned_free(cin);

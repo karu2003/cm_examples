@@ -19,33 +19,34 @@ set(CMSIS_CORE_PATH "${CMSIS_PATH}/Core/Include")
 set(CMSIS_INCLUDE_PATH "${CMSIS_DSP_PATH}/Include")
 set(CMSIS_PRIVAT_PATH "${CMSIS_DSP_PATH}/PrivateInclude")
 
-# message(STATUS "CMSIS_PATH: ${CMSIS_PATH}")
-# message(STATUS "CMSIS_DSP_PATH: ${CMSIS_DSP_PATH}")
-# message(STATUS "CMSIS_CORE_PATH: ${CMSIS_CORE_PATH}")
-# message(STATUS "CMSIS_INCLUDE_PATH: ${CMSIS_INCLUDE_PATH}")
-# message(STATUS "CMSIS_PRIVAT_PATH: ${CMSIS_PRIVAT_PATH}")
+# message(STATUS "CMSIS_PATH: ${CMSIS_PATH}") message(STATUS "CMSIS_DSP_PATH:
+# ${CMSIS_DSP_PATH}") message(STATUS "CMSIS_CORE_PATH: ${CMSIS_CORE_PATH}")
+# message(STATUS "CMSIS_INCLUDE_PATH: ${CMSIS_INCLUDE_PATH}") message(STATUS
+# "CMSIS_PRIVAT_PATH: ${CMSIS_PRIVAT_PATH}")
 
 include_directories(${CMSIS_CORE_PATH})
 include_directories(${CMSIS_INCLUDE_PATH})
 include_directories(${CMSIS_PRIVAT_PATH})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb")
+set(CMAKE_C_FLAGS
+    "${CMAKE_C_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb"
+)
 
 add_executable_m7(arm_fft arm_fft.cc ../lib/hamming/hamming.cpp)
 
-
 # file(GLOB_RECURSE CMSIS_DSP_SOURCES "${CMSIS_DSP_PATH}/Source/*.c")
 
-file(GLOB CMSIS_DSP_SOURCES "${CMSIS_DSP_PATH}/Source/TransformFunctions/*.c" "${CMSIS_DSP_PATH}/Source/CommonTables/*.c")
+file(GLOB CMSIS_DSP_SOURCES "${CMSIS_DSP_PATH}/Source/TransformFunctions/*.c"
+     "${CMSIS_DSP_PATH}/Source/CommonTables/*.c" "${CMSIS_DSP_PATH}/Source/StatisticsFunctions/*.c")
 
 add_library(CMSISDSP STATIC ${CMSIS_DSP_SOURCES})
 
 if(NOT CMSIS_DSP_SOURCES)
-    message(FATAL_ERROR "No CMSIS DSP sources found")
+  message(FATAL_ERROR "No CMSIS DSP sources found")
 endif()
 
 target_link_libraries(arm_fft libs_base-m7_freertos CMSISDSP)
 
 include_directories("../lib/hamming")
-

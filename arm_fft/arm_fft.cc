@@ -106,15 +106,15 @@ extern "C" [[noreturn]] void app_main(void* param) {
             power[i] = real * real + imag * imag;
         }
 
-        // float min_val, max_val;
-        // arm_min_f32(power, newsize / 2, &min_val, NULL);
-        // arm_max_f32(power, newsize / 2, &max_val, NULL);
+        float min_val, max_val;
+        arm_min_f32(power, newsize / 2, &min_val, NULL);
+        arm_max_f32(power, newsize / 2, &max_val, NULL);
 
-        // for (int i = 0; i < newsize / 2; ++i) {
-        //     power[i] = (power[i] - min_val) / (max_val - min_val);
-        // }
+        for (int i = 0; i < newsize / 2; ++i) {
+            power[i] = (power[i] - min_val) / (max_val - min_val);
+        }
 
-        normalize(power, newsize / 2);
+        // normalize(power, newsize / 2);
 
         for (int i = 0; i < newsize / 2; ++i) {
             printf("%f\n\r", power[i]);
