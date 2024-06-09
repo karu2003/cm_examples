@@ -17,3 +17,7 @@
 [submodule "lib/CMSIS-DSP"]
 	path = lib/CMSIS-DSP
 	url = https://github.com/ARM-software/CMSIS-DSP
+[submodule "lib/fCWT"]
+	path = lib/fCWT
+	url = git@github.com:karu2003/fCWT.git
+	branch = arm32
