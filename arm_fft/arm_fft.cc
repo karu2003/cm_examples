@@ -84,6 +84,8 @@ extern "C" [[noreturn]] void app_main(void* param) {
         /*debounce_interval_us=*/50 * 1e3);
 
     printf("Starting ARM FFT\n\r");
+    printf("Press the user button to start the FFT\n\r");
+    printf("New size: %d\n\r", newsize);
 
     while (true) {
         vTaskSuspend(nullptr);
