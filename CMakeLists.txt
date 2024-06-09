@@ -21,6 +21,8 @@ add_subdirectory(simple_fft_test)
 add_subdirectory(timer_interrupt)
 add_subdirectory(generator)
 # add_subdirectory(cwt)
-# add_subdirectory(arm_fft)
+add_subdirectory(arm_fft)
 add_subdirectory(pffft)
-# add_subdirectory(lib/pffft)
+# add_subdirectory(lib/CMSIS-DSP)
+
+

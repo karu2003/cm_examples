@@ -14,3 +14,6 @@
 [submodule "lib/kissfft"]
 	path = lib/kissfft
 	url = https://github.com/mborgerding/kissfft
+[submodule "lib/CMSIS-DSP"]
+	path = lib/CMSIS-DSP
+	url = https://github.com/ARM-software/CMSIS-DSP
