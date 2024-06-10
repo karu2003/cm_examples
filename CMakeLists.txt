@@ -24,5 +24,6 @@ add_subdirectory(generator)
 add_subdirectory(arm_fft)
 add_subdirectory(pffft)
 add_subdirectory(convolution)
+add_subdirectory(xCount)
 
 
