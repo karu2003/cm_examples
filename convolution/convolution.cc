@@ -6,19 +6,29 @@
 #include <time.h>
 
 #include "arm_math.h"
-// #include "board.h"
-#include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/utilities/debug_console/fsl_debug_console.h"
-#include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/fsl_device_registers.h"
 #include "libs/base/gpio.h"
 #include "libs/base/random.h"
 #include "libs/base/timer.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
+#include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/fsl_device_registers.h"
+#include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/utilities/debug_console/fsl_debug_console.h"
+
+#include <inttypes.h>
 
 #define CPU_CLOCK_HZ (CLOCK_GetFreq(kCLOCK_CpuClk))
 
 namespace coralmicro {
 namespace {
+
+bool RandomGenerate_M(void* buf, size_t size) {
+    // Пример реализации: заполняем буфер случайными числами
+    float32_t* array = (float32_t*)buf;
+    for (size_t i = 0; i < size / sizeof(float32_t); ++i) {
+        array[i] = (float32_t)rand() / (float32_t)RAND_MAX;  // Генерация случайного числа от 0 до 1
+    }
+    return true;
+}
 
 // Функция для инициализации циклового счетчика DWT
 static inline void dwt_init(void) {
@@ -40,16 +50,14 @@ static inline uint32_t dwt_get_cycles(void) {
 void measure_function_time(std::function<void()> func) {
     dwt_init();                                // Инициализация DWT
     uint32_t start_cycles = dwt_get_cycles();  // Стартовое значение циклового счетчика
-
-    func();  // Вызов измеряемой функции
-
+    func();
     uint32_t end_cycles = dwt_get_cycles();            // Конечное значение циклового счетчика
     uint32_t cycle_count = end_cycles - start_cycles;  // Подсчет количества тактов
-
     // Перевод в наносекунды
-    uint64_t time_ns = (uint64_t)cycle_count * 1000000000 / CPU_CLOCK_HZ;
-
-    printf("Function execution time: %llu nS\n\r", time_ns);
+    uint64_t time_ns = (uint64_t)cycle_count * 1000000000ULL / CPU_CLOCK_HZ;
+    printf("Cycle count: %u\n\r", cycle_count);
+    // printf("Function execution time: %lu nS\n\r", time_ns);
+    // printf("Function execution time: %" PRIu64 " nS\n\r", time_ns);
 }
 
 // Собственная реализация свертки
@@ -91,15 +99,18 @@ void example_function(void) {
     for (volatile int i = 0; i < 100000; i++);
 }
 
-extern "C" [[noreturn]] void app_main(void* param) {
-    // BOARD_InitBootPins();
-    // BOARD_InitBootClocks();
-    // BOARD_InitDebugConsole();
+__attribute__((optimize("O0"))) void add_nops(int k) {
+    for (int i = 0; i < k; i++) {
+        asm volatile("nop");
+    }
+}
 
-    uint32_t duration_cmsis = 0;
-    uint32_t duration_manual = 0;
+extern "C" [[noreturn]] void app_main(void* param) {
+    // uint32_t duration_cmsis = 0;
+    // uint32_t duration_manual = 0;
     uint64_t lastMicros_cmsis;
     uint64_t lastMicros_manual;
+    uint32_t size = 256;
 
     // SystemCoreClockUpdate();
 
@@ -112,8 +123,8 @@ extern "C" [[noreturn]] void app_main(void* param) {
     // srand(time(NULL));
 
     // Исходные массивы данных (размер 1024)
-    float32_t srcA[1024];
-    float32_t srcB[1024];
+    float32_t srcA[size];
+    float32_t srcB[size];
 
     // Заполнение массивов случайными числами
     // fill_array_with_random_numbers(srcA, 1024);
@@ -124,24 +135,12 @@ extern "C" [[noreturn]] void app_main(void* param) {
     }
 
     // Размеры массивов
-    uint32_t srcALen = 1024;
-    uint32_t srcBLen = 1024;
+    uint32_t srcALen = size;
+    uint32_t srcBLen = size;
 
     // Результирующие массивы (длина = srcALen + srcBLen - 1)
-    float32_t result_manual[2047];
-    float32_t result_cmsis[2047];
-
-    // // Измерение времени выполнения для собственной реализации
-    // TickType_t start_manual = xTaskGetTickCount();
-    // manual_convolution(srcA, srcALen, srcB, srcBLen, result_manual);
-    // TickType_t end_manual = xTaskGetTickCount();
-    // duration_manual = (end_manual - start_manual) * portTICK_PERIOD_MS * 1000;  // Время в наносекундах
-
-    // // Измерение времени выполнения для CMSIS-DSP
-    // TickType_t start_cmsis = xTaskGetTickCount();
-    // cmsis_convolution(srcA, srcALen, srcB, srcBLen, result_cmsis);
-    // TickType_t end_cmsis = xTaskGetTickCount();
-    // duration_cmsis = (end_cmsis - start_cmsis) * portTICK_PERIOD_MS * 1000;  // Время в наносекундах
+    float32_t result_manual[size * 2 - 1];
+    float32_t result_cmsis[size * 2 - 1];
 
     printf("Starting ARM Convolution\n\r");
     printf("Press the user button to start the convolution\n\r");
@@ -149,22 +148,10 @@ extern "C" [[noreturn]] void app_main(void* param) {
     while (true) {
         vTaskSuspend(nullptr);
         printf("Measuring\n\r");
-        measure_function_time([&]() { example_function(); });
-        dwt_init();                                // Инициализация DWT
-        // add 100 nop ASM instructions
-        
-        
-        for (volatile int i = 0; i < 100; i++);
-        TickType_t start_cycles = xTaskGetTickCount();  // Стартовое значение циклового счетчика
-
-        uint32_t start_cycles = dwt_get_cycles();  // Стартовое значение циклового счетчика
-        printf("Start cycles: %u\n\r", start_cycles);
-                                                   // measure_function_time([&]() { manual_convolution(srcA, srcALen, srcB, srcBLen, result_manual); });
-                                                   // measure_function_time([&]() { cmsis_convolution(srcA, srcALen, srcB, srcBLen, result_cmsis); });
-                                                   // measure_function_time(manual_convolution_wrapper, "manual_convolution");
-                                                   // measure_function_time(cmsis_convolution_wrapper, "cmsis_convolution");
-                                                   // printf("Manual convolution time: %lu ns\n", duration_manual);
-                                                   // printf("CMSIS convolution time: %lu ns\n", duration_cmsis);
+        printf("Manual convolution duration: ");
+        measure_function_time([&]() { manual_convolution(srcA, srcALen, srcB, srcBLen, result_manual); });
+        printf("CMSIS convolution duration: ");
+        measure_function_time([&]() { cmsis_convolution(srcA, srcALen, srcB, srcBLen, result_cmsis); });
     }
 }
 }  // namespace

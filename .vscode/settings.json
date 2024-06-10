@@ -98,7 +98,7 @@
         "hash_map": "cpp"
     },
     "[cpp]": {
-        "editor.defaultFormatter": "xaver.clang-format"
+        "editor.defaultFormatter": "xaver.clang-format",
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
@@ -118,6 +118,7 @@
         // "cmake.configureArgs": ["-B out -S ."],
         "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/coralmicro/cmake/toolchain-arm-none-eabi-gcc.cmake"
     },
+    
     "cmake.buildDirectory": "${workspaceFolder}/out",
     "cmake.configureOnOpen": true
 }

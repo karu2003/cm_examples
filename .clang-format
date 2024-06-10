@@ -3,5 +3,6 @@
 BasedOnStyle: Google
 IndentWidth: 4
 TabWidth: 4
+SortIncludes: false
 UseTab: Never
 ColumnLimit: 0
