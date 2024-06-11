@@ -53,11 +53,11 @@ void measure_function_time(std::function<void()> func) {
     func();
     uint32_t end_cycles = dwt_get_cycles();            // Конечное значение циклового счетчика
     uint32_t cycle_count = end_cycles - start_cycles;  // Подсчет количества тактов
-    // Перевод в наносекунды
-    uint64_t time_ns = (uint64_t)cycle_count * 1000000000ULL / CPU_CLOCK_HZ;
-    printf("Cycle count: %u\n\r", cycle_count);
-    // printf("Function execution time: %lu nS\n\r", time_ns);
-    // printf("Function execution time: %" PRIu64 " nS\n\r", time_ns);
+
+    // Convert to microseconds
+    float duration = (float)cycle_count / (float)CPU_CLOCK_HZ;
+    printf("Duration: %f uS\n\r", duration * 1e6);
+    // printf("Cycle count: %u \n\r", cycle_count);
 }
 
 // Собственная реализация свертки
@@ -84,15 +84,6 @@ void fill_array_with_random_numbers(float32_t* array, uint32_t size) {
     }
 }
 
-// // Функция-обёртка для manual_convolution
-// void manual_convolution_wrapper(void) {
-//     manual_convolution(srcA, srcALen, srcB, srcBLen, result_manual);
-// }
-
-// void cmsis_convolution_wrapper(void) {
-//     cmsis_convolution(srcA, srcALen, srcB, srcBLen, result_cmsis);
-// }
-
 // Пример измеряемой функции
 void example_function(void) {
     // Код функции для измерения
@@ -110,9 +101,9 @@ extern "C" [[noreturn]] void app_main(void* param) {
     // uint32_t duration_manual = 0;
     uint64_t lastMicros_cmsis;
     uint64_t lastMicros_manual;
-    uint32_t size = 256;
-
-    // SystemCoreClockUpdate();
+    uint32_t size = 512;  // CPU freezes with 1024 size
+    // Manual convolution on the array 512 duration: Duration: 6026.217248 uS
+    // CMSIS convolution on the array 512 duration: Duration: 2492.818283 uS
 
     GpioConfigureInterrupt(
         Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
@@ -122,7 +113,6 @@ extern "C" [[noreturn]] void app_main(void* param) {
     // // Инициализация генератора случайных чисел
     // srand(time(NULL));
 
-    // Исходные массивы данных (размер 1024)
     float32_t srcA[size];
     float32_t srcB[size];
 
