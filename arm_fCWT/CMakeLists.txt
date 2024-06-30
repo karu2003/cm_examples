@@ -28,6 +28,8 @@ include_directories(${CMSIS_CORE_PATH})
 include_directories(${CMSIS_INCLUDE_PATH})
 include_directories(${CMSIS_PRIVAT_PATH})
 
+# add_definitions(-DAVX)
+
 set(CMAKE_C_FLAGS
     "${CMAKE_C_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb")
 set(CMAKE_CXX_FLAGS

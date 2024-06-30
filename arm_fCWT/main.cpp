@@ -33,7 +33,7 @@ int main(int argc, char * argv[]) {
     const int fn = 200;
 
     //Define number of threads for multithreaded use
-    const int nthreads = 8;
+    const int nthreads = 1;
 
     //input: n real numbers
     std::vector<float> sig(n);

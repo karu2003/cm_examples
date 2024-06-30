@@ -155,7 +155,7 @@ extern "C" [[noreturn]] void app_main(void* param) {
 
     while (true) {
         vTaskSuspend(nullptr);
-        // for (int i = 0; i < n; i++) { 
+        // for (int i = 0; i < n; i++) {
         //     printf("%f\n\r", sig[i]);
         //     vTaskDelay(pdMS_TO_TICKS(8));
         // }
@@ -164,15 +164,11 @@ extern "C" [[noreturn]] void app_main(void* param) {
         //     printf("%f\n\r", morl.mother[i]);
         //     vTaskDelay(pdMS_TO_TICKS(8));
         // }
-
+        printf("%d\n\r", scs.nscales);
         for (int i = 0; i < scs.nscales; i++) {
             printf("%f\n\r", scs.scales[i]);
-            float step = (scs.scales[i]/2.0);
-            printf("%f\n\r", step);
-            printf("%d\n\r", (int)step);
             vTaskDelay(pdMS_TO_TICKS(8));
         }
-
     }
 }
 }  // namespace
