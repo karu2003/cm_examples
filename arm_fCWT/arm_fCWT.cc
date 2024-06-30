@@ -155,6 +155,31 @@ extern "C" [[noreturn]] void app_main(void* param) {
 
     while (true) {
         vTaskSuspend(nullptr);
+        for (int i = 0; i < scs.nscales; i++) {
+            float endpointf = fmin(newsize / 2.0, (newsize * 2.0) / scs.scales[i]);
+            float step = scs.scales[i] / 2.0;
+            int endpoint = static_cast<int>(endpointf);
+            int batchsize = endpoint;
+            float maximum = newsize - 1;
+            int s1 = newsize - 1;
+            int start = batchsize * i;
+            int end = batchsize * (i + 1);
+            printf("EndpointF: %f\n\r", endpointf);
+            printf("Step: %f\n\r", step);
+            printf("Endpoint: %d\n\r", endpoint);
+            printf("Maximum: %f\n\r", maximum);
+            printf("S1: %d\n\r", s1);
+            printf("Start: %d\n", start);
+            printf("End: %d\n", end);
+            for (int q1 = start; q1 < end; q1++) {
+                float q = (float)q1;
+                float tmp = min(maximum, step * q);
+                printf("Tmp int: %d\n", (int)tmp);
+            }
+
+            vTaskDelay(pdMS_TO_TICKS(8));
+        }
+
         // for (int i = 0; i < n; i++) {
         //     printf("%f\n\r", sig[i]);
         //     vTaskDelay(pdMS_TO_TICKS(8));
@@ -164,11 +189,11 @@ extern "C" [[noreturn]] void app_main(void* param) {
         //     printf("%f\n\r", morl.mother[i]);
         //     vTaskDelay(pdMS_TO_TICKS(8));
         // }
-        printf("%d\n\r", scs.nscales);
-        for (int i = 0; i < scs.nscales; i++) {
-            printf("%f\n\r", scs.scales[i]);
-            vTaskDelay(pdMS_TO_TICKS(8));
-        }
+        // printf("%d\n\r", scs.nscales);
+        // for (int i = 0; i < scs.nscales; i++) {
+        //     printf("%f\n\r", scs.scales[i]);
+        //     vTaskDelay(pdMS_TO_TICKS(8));
+        // }
     }
 }
 }  // namespace
