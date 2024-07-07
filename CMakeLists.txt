@@ -26,5 +26,6 @@ add_subdirectory(pffft)
 add_subdirectory(convolution)
 add_subdirectory(xCount)
 add_subdirectory(arm_fCWT)
+add_subdirectory(arm_cfft)
 
 

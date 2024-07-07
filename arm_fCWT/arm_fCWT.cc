@@ -136,9 +136,11 @@ extern "C" [[noreturn]] void app_main(void* param) {
     Morlet morl(1.0f);
     wavelet = &morl;
 
-    FCWT fcwt(wavelet, true, false);
+    // FCWT fcwt(wavelet, true, false);
 
     Scales scs(wavelet, FCWT_LINFREQS, fs, f0, f1, fn);
+
+    // fcwt.cwt(&sigc[0], n, &tfm[0], &scs);
 
     // Find nearest power of 2
     const int nt = find2power(n);

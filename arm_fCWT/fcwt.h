@@ -44,6 +44,7 @@ limitations under the License.
 #include <cassert>
 #include <math.h>
 #include <complex>
+#include "arm_math.h"
 
 // #include <iostream>
 // #include <sstream>
@@ -130,21 +131,21 @@ class Scales {
 
 class FCWT {
    public:
-    FCWT_LIBRARY_API FCWT(Wavelet* pwav, bool puse_optimalization_schemes, bool puse_normalization) : wavelet(pwav),
-                                                                                                      use_optimalization_schemes(puse_optimalization_schemes),
-                                                                                                      use_normalization(puse_normalization) {};
+    // FCWT_LIBRARY_API FCWT(Wavelet* pwav, bool puse_optimalization_schemes, bool puse_normalization) : wavelet(pwav),
+                                                                                                    //   use_optimalization_schemes(puse_optimalization_schemes),
+                                                                                                    //   use_normalization(puse_normalization) {};
 
     //     void FCWT_LIBRARY_API create_FFT_optimization_plan(int pmaxsize, int poptimizationflags);
     //     void FCWT_LIBRARY_API create_FFT_optimization_plan(int pmaxsize, string poptimizationflags);
-    //     void FCWT_LIBRARY_API cwt(float *pinput, int psize, complex<float>* poutput, Scales *scales);
-    //     void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, complex<float>* poutput, Scales *scales);
-    //     void FCWT_LIBRARY_API cwt(float *pinput, int psize, Scales *scales, complex<float>* poutput, int pn1, int pn2);
-    //     void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, Scales *scales, complex<float>* poutput, int pn1, int pn2);
+        // void FCWT_LIBRARY_API cwt(float *pinput, int psize, complex<float>* poutput, Scales *scales);
+        // void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, complex<float>* poutput, Scales *scales);
+        // void FCWT_LIBRARY_API cwt(float *pinput, int psize, Scales *scales, complex<float>* poutput, int pn1, int pn2);
+        // void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, Scales *scales, complex<float>* poutput, int pn1, int pn2);
 
-    //     Wavelet *wavelet;
+        Wavelet *wavelet;
 
    private:
-    //     void cwt(float *pinput, int psize, complex<float>* poutput, Scales *scales, bool complexinput);
+        // void cwt(float *pinput, int psize, complex<float>* poutput, Scales *scales, bool complexinput);
     //     void cwt_static(float *pinput, int psize, float* poutput, float* scales);
     //     void cwt_dynamic(float *pinput, int psize, float* poutput, float* scales);
     //     void convolve(fftwf_plan p, fftwf_complex *Ihat, fftwf_complex *O1, complex<float> *out, Wavelet *wav, int size, int newsize, float scale, bool lastscale);
