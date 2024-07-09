@@ -39,7 +39,7 @@ add_executable_m7(arm_cfft arm_cfft.cc)# ../lib/hamming/hamming.cpp)
 # file(GLOB_RECURSE CMSIS_DSP_SOURCES "${CMSIS_DSP_PATH}/Source/*.c")
 
 file(GLOB CMSIS_DSP_SOURCES "${CMSIS_DSP_PATH}/Source/TransformFunctions/*.c"
-     "${CMSIS_DSP_PATH}/Source/CommonTables/*.c" "${CMSIS_DSP_PATH}/Source/StatisticsFunctions/*.c" "${CMSIS_DSP_PATH}/Source/FastMathFunctions/arm_sin_f32.c")
+     "${CMSIS_DSP_PATH}/Source/CommonTables/*.c" "${CMSIS_DSP_PATH}/Source/StatisticsFunctions/*.c" "${CMSIS_DSP_PATH}/Source/FastMathFunctions/arm_sin_f32.c" "${CMSIS_DSP_PATH}/Source/FastMathFunctions/arm_cos_f32.c")
 
 add_library(CFFT STATIC ${CMSIS_DSP_SOURCES})
 

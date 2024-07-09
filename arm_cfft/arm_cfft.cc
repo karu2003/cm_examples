@@ -89,8 +89,8 @@ void init_chirp_signal(float end_freq) {
 // }
 
 void generate_chirp_signal(float* signal, float start_freq, float end_freq, float sample_rate, int num_samples) {
-    float phase_increment = 2.0 * M_PI / num_samples; // Приращение фазы на каждом шаге
-    float phase = 0.0; // Начальная фаза
+    float phase_increment = 2.0 * M_PI / num_samples;  // Приращение фазы на каждом шаге
+    float phase = 0.0;                                 // Начальная фаза
 
     for (int i = 0; i < num_samples; ++i) {
         // Рассчитываем текущую частоту для линейного чирпа
@@ -108,14 +108,56 @@ void generate_chirp_signal(float* signal, float start_freq, float end_freq, floa
     }
 }
 
+// Функция для вычисления фазы линейного чирп-сигнала
+void _lchirp(float32_t* phi, int N, float32_t fmin, float32_t fmax, float32_t fs) {
+    float32_t tmin = 0;
+    float32_t tmax = (N - 1) / fs;
+
+    fmax = (fmax != 0) ? fmax : fs / 2.0f;
+
+    float32_t t, a, b, delta_t;
+    delta_t = 1.0f / fs;
+    a = (fmin - fmax) / (tmin - tmax);
+    b = (fmin * tmax - fmax * tmin) / (tmax - tmin);
+
+    for (int i = 0; i < N; ++i) {
+        t = i * delta_t;
+        phi[i] = (a / 2.0f) * (t * t - tmin * tmin) + b * (t - tmin);
+        phi[i] *= 2 * PI;
+    }
+}
+
+// Основная функция для генерации линейного чирп-сигнала
+void lchirp(float32_t* signal, int N, float32_t fmin, float32_t fmax, float32_t fs, bool zero_phase_tmin, bool use_cos) {
+    float32_t phi[N];
+    _lchirp(phi, N, fmin, fmax, fs);
+
+    float32_t phi_last = phi[N - 1];
+    float32_t phi_factor = (phi_last - fmod(phi_last, 2 * PI)) / phi_last;
+
+    for (int i = 0; i < N; ++i) {
+        if (zero_phase_tmin) {
+            phi[i] *= phi_factor;
+        } else {
+            phi[i] -= fmod(phi_last, 2 * PI);
+        }
+
+        if (use_cos) {
+            signal[i] = arm_cos_f32(phi[i]);
+        } else {
+            signal[i] = arm_sin_f32(phi[i]);
+        }
+    }
+}
+
 extern "C" [[noreturn]] void app_main(void* param) {
     uint64_t lastMicros;
     arm_status status;
     // float* input_data = new float[FFT_SIZE];
     const int signal_length = 1024;  // Длина сигнала в выборках
-    float sampling_rate = 96000.0f;  // Частота дискретизации в Гц
-    float start_freq = 1000.0f;      // Начальная частота в Гц
-    float end_freq = 5000.0f;        // Конечная частота в Гц (может быть скорректирована функцией)
+    float sampling_rate = 384000.0f;  // Частота дискретизации в Гц
+    float start_freq = 7000.0f;      // Начальная частота в Гц
+    float end_freq = 17000.0f;        // Конечная частота в Гц (может быть скорректирована функцией)
 
     // Расчет конечной частоты
     // end_freq = calculate_end_frequency(START_FREQ, TARGET_END_FREQ, DURATION);
@@ -138,7 +180,8 @@ extern "C" [[noreturn]] void app_main(void* param) {
     // init_chirp_signal(input_data, FFT_SIZE, START_FREQ, end_freq, SAMPLING_FREQUENCY);
     // init_chirp_signal(input_data, signal_length, start_freq, end_freq, sampling_rate);
     // init_chirp_signal(end_freq);
-    generate_chirp_signal(input_data, sampling_rate, start_freq, end_freq, signal_length);
+    // generate_chirp_signal(input_data, sampling_rate, start_freq, end_freq, signal_length);
+    lchirp(input_data, signal_length, start_freq, end_freq, sampling_rate, false, false);
 
     // Преобразование real float в float32_t для CFFT
     float32_t* input_float32 = (float32_t*)pvPortMalloc(2 * FFT_SIZE * sizeof(float32_t));
