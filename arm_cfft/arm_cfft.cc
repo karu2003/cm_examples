@@ -47,7 +47,7 @@ float calculate_end_frequency(float start_freq, float target_end_freq, float dur
 }
 
 // Определение функции для вычисления x(t)
-void Chirp_Zero_Crossings(float* output_signal, float start_freq, float end_freq, int num_points, float sampling_rate) {
+void Chirp_One(float* output_signal, float start_freq, float end_freq, int num_points, float sampling_rate) {
     float duration = static_cast<float>(num_points - 1) / sampling_rate;
     for (int i = 0; i < num_points; ++i) {
         float t = static_cast<float>(i) / sampling_rate;
@@ -172,7 +172,7 @@ extern "C" [[noreturn]] void app_main(void* param) {
     // init_chirp_signal(end_freq);
     // generate_chirp_signal(input_data, sampling_rate, start_freq, end_freq, signal_length);
     lchirp(input_data, signal_length, start_freq, end_freq, sampling_rate, true, false);
-    // Chirp_Zero_Crossings(input_data, start_freq, end_freq, signal_length, sampling_rate);
+    // Chirp_One(input_data, start_freq, end_freq, signal_length, sampling_rate);
 
     // Преобразование real float в float32_t для CFFT
     float32_t* input_float32 = (float32_t*)pvPortMalloc(2 * FFT_SIZE * sizeof(float32_t));
