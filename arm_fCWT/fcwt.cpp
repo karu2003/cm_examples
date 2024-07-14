@@ -350,7 +350,7 @@ void FCWT::fft_normalize(complex<float>* out, int size) {
         }
     }
 }
-
+*/
 void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales, bool complexinput) {
     fftwf_complex *Ihat, *O1;
     int size = psize;
@@ -411,21 +411,21 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
     free(Ihat);
     free(O1);
 }
-*/
-// void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
-//     cwt(pinput, psize, poutput, scales, false);
-// }
 
-// void FCWT::cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales) {
-//     cwt((float *)pinput, psize, poutput, scales, true);
-// }
+void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
+    cwt(pinput, psize, poutput, scales, false);
+}
 
-// void FCWT::cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
-//     assert((psize * scales->nscales) == (pn1 * pn2));
-//     cwt(pinput, psize, poutput, scales);
-// }
+void FCWT::cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales) {
+    cwt((float *)pinput, psize, poutput, scales, true);
+}
 
-// void FCWT::cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
-//     assert((psize * scales->nscales) == (pn1 * pn2));
-//     cwt(pinput, psize, poutput, scales);
-// }
+void FCWT::cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
+    assert((psize * scales->nscales) == (pn1 * pn2));
+    cwt(pinput, psize, poutput, scales);
+}
+
+void FCWT::cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
+    assert((psize * scales->nscales) == (pn1 * pn2));
+    cwt(pinput, psize, poutput, scales);
+}
