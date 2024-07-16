@@ -350,7 +350,7 @@ void FCWT::fft_normalize(complex<float>* out, int size) {
         }
     }
 }
-*/
+
 void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales, bool complexinput) {
     fftwf_complex *Ihat, *O1;
     int size = psize;
@@ -411,6 +411,206 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
     free(Ihat);
     free(O1);
 }
+*/
+
+
+void FCWT::daughter_wavelet_multiplication(float *input, float *output, const float *mother, float scale, int isize, bool imaginary, bool doublesided) {
+    float isizef = static_cast<float>(isize);
+    float endpointf = fmin(isizef / 2.0, (isizef * 2.0) / scale);
+    float step = scale / 2.0;
+    int endpoint = static_cast<int>(endpointf);
+    float maximum = isizef - 1;
+    int s1 = isize - 1;
+
+    for (int q1 = 0; q1 < endpoint; q1++) {
+        float q = static_cast<float>(q1);
+        float tmp = fmin(maximum, step * q);
+
+        output[2 * q1] = input[2 * q1] * mother[static_cast<int>(tmp)];
+        output[2 * q1 + 1] = input[2 * q1 + 1] * mother[static_cast<int>(tmp)] * (1 - 2 * imaginary);
+    }
+
+    if (doublesided) {
+        for (int q1 = 0; q1 < endpoint; q1++) {
+            float q = static_cast<float>(q1);
+            float tmp = fmin(maximum, step * q);
+
+            output[2 * (s1 - q1)] = input[2 * (s1 - q1)] * mother[static_cast<int>(tmp)] * (1 - 2 * imaginary);
+            output[2 * (s1 - q1) + 1] = input[2 * (s1 - q1) + 1] * mother[static_cast<int>(tmp)];
+        }
+    }
+}
+
+
+// void FCWT::fftbased(arm_cfft_instance_f32 &cfft_instance, float *Ihat, float *O1, float *out, float *mother, int size, float scale, bool imaginary, bool doublesided) {
+//     // Выделение памяти под временные буферы
+//     float *temp_out = (float*)pvPortMalloc(2 * size * sizeof(float)); // Выходной буфер для FFT
+//     memset(temp_out, 0, 2 * size * sizeof(float));
+    
+//     // Генерация дочерней вейвлет-функции и умножение с преобразованным входным сигналом
+//     daughter_wavelet_multiplication(Ihat, O1, mother, scale, size, imaginary, doublesided);
+    
+//     // Выполнение обратного FFT с использованием ARM CMSIS-DSP
+//     arm_cfft_f32(&cfft_instance, O1, 1, 1);
+
+//     // Копирование результата в выходной буфер
+//     memcpy(out, O1, 2 * size * sizeof(float));
+    
+//     // Очистка временных буферов
+//     vPortFree(temp_out);
+// }
+
+
+void FCWT::convolve(arm_cfft_instance_f32 &cfft_instance, float *Ihat, float *O1, complex<float> *out, Wavelet *wav, int size, int newsize, float scale, bool lastscale) {
+    if (lastscale) {
+        float *lastscalemem = (float*)pvPortMalloc(2 * newsize * sizeof(float)); // Выделяем память под комплексные числа
+        memset(lastscalemem, 0, 2 * newsize * sizeof(float));
+        
+        fftbased(cfft_instance, Ihat, O1, lastscalemem, wav->mother, newsize, scale, wav->imag_frequency, wav->doublesided);
+        
+        if (use_normalization) {
+            fft_normalize((complex<float>*)lastscalemem, newsize);
+        }
+        
+        memcpy(out, (complex<float>*)lastscalemem, sizeof(complex<float>) * size);
+        vPortFree(lastscalemem);
+    } else {
+        if (!out) {
+            std::cout << "OUT NOT A POINTER" << std::endl;
+            return;
+        }
+        
+        fftbased(cfft_instance, Ihat, O1, (float*)out, wav->mother, newsize, scale, wav->imag_frequency, wav->doublesided);
+        
+        if (use_normalization) {
+            fft_normalize(out, newsize);
+        }
+    }
+}
+
+void FCWT::fftbased(arm_cfft_instance_f32 &cfft_instance, float *Ihat, float *O1, float *out, float* mother, int size, float scale, bool imaginary, bool doublesided) {
+    // Выделение памяти под временные буферы
+    float *temp_out = (float*)pvPortMalloc(2 * size * sizeof(float)); // Выходной буфер для FFT
+    memset(temp_out, 0, 2 * size * sizeof(float));
+    
+    // Генерация дочерней вейвлет-функции и умножение с преобразованным входным сигналом
+    daughter_wavelet_multiplication(Ihat, O1, mother, scale, size, imaginary, doublesided);
+    
+    // Выполнение обратного FFT с использованием ARM CMSIS-DSP
+    arm_cfft_f32(&cfft_instance, O1, 1, 1);
+
+    // Копирование результата в выходной буфер
+    memcpy(out, O1, 2 * size * sizeof(float));
+    
+    // Очистка временных буферов
+    vPortFree(temp_out);
+}
+
+// void daughter_wavelet_multiplication(float *Ihat, float *O1, float *mother, float scale, int size, bool imaginary, bool doublesided) {
+//     for (int i = 0; i < size; i++) {
+//         float real = Ihat[2 * i] * mother[2 * i] - Ihat[2 * i + 1] * mother[2 * i + 1];
+//         float imag = Ihat[2 * i + 1] * mother[2 * i] + Ihat[2 * i] * mother[2 * i + 1];
+//         O1[2 * i] = real;
+//         O1[2 * i + 1] = imag;
+//     }
+// }
+
+
+// void fftbased(arm_cfft_instance_f32 &cfft_instance, float *Ihat, float *O1, float *out, const float *mother, int newsize, float scale, bool imag_frequency, bool doublesided) {
+//     // Множим спектры и выполняем обратное FFT
+//     for (int i = 0; i < newsize; i++) {
+//         float real = Ihat[2 * i] * mother[2 * i] - Ihat[2 * i + 1] * mother[2 * i + 1];
+//         float imag = Ihat[2 * i + 1] * mother[2 * i] + Ihat[2 * i] * mother[2 * i + 1];
+//         O1[2 * i] = real;
+//         O1[2 * i + 1] = imag;
+//     }
+
+//     // Выполняем обратное FFT
+//     arm_cfft_f32(&cfft_instance, O1, 1, 1);
+
+//     // Копируем результат в выходной буфер
+//     memcpy(out, O1, 2 * newsize * sizeof(float));
+// }
+
+// void fft_normalize(complex<float> *data, int size) {
+//     for (int i = 0; i < size; i++) {
+//         data[i] /= size;
+//     }
+// }
+
+
+void FCWT::cwt(float *pinput, int psize, complex<float>* poutput, Scales *scales, bool complexinput) {
+    size = psize;
+    
+    // Найти ближайшую степень двойки
+    const int nt = find2power(size);
+    const int newsize = 1 << nt;
+
+    // Инициализация промежуточных результатов
+    float *Ihat = (float*)pvPortMalloc(2 * newsize * sizeof(float)); // Реальные и мнимые части
+    float *O1 = (float*)pvPortMalloc(2 * newsize * sizeof(float));   // Реальные и мнимые части
+
+    // Копирование входных данных в новый буфер
+    memset(Ihat, 0, 2 * newsize * sizeof(float));
+    memset(O1, 0, 2 * newsize * sizeof(float));
+
+    // Выполнение прямого FFT на входном сигнале
+    if (complexinput) {
+        for (int i = 0; i < size; i++) {
+            Ihat[2 * i] = pinput[2 * i];       // Реальная часть
+            Ihat[2 * i + 1] = pinput[2 * i + 1]; // Мнимая часть
+        }
+    } else {
+        for (int i = 0; i < size; i++) {
+            Ihat[2 * i] = pinput[i]; // Реальная часть
+            Ihat[2 * i + 1] = 0.0f;  // Мнимая часть
+        }
+    }
+
+    arm_cfft_instance_f32 cfft_instance;
+    arm_cfft_init_f32(&cfft_instance, newsize);
+
+    // Выполнение прямого FFT
+    arm_cfft_f32(&cfft_instance, Ihat, 0, 1);
+
+    // Генерация функции материнского вейвлета
+    wavelet->generate(newsize);
+
+    for (int i = 1; i < (newsize >> 1); i++) {
+        Ihat[2 * (newsize - i)] = Ihat[2 * i];       // Копирование реальной части
+        Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1]; // Копирование и изменение знака мнимой части
+    }
+
+    complex<float> *out = poutput;
+
+    for (int i = 0; i < scales->nscales; i++) {
+        // Свертка на основе FFT в частотной области
+        convolve(cfft_instance, Ihat, O1, out, wavelet, size, newsize, scales->scales[i], i == (scales->nscales - 1));
+        out += size;
+    }
+
+    // Очистка
+    vPortFree(Ihat);
+    vPortFree(O1);
+}
+
+// void convolve(arm_cfft_instance_f32& cfft_instance, float *Ihat, float *O1, complex<float> *out, Wavelet *wavelet, int size, int newsize, float scale, bool last) {
+//     // Умножение спектров и выполнение обратного FFT
+//     for (int i = 0; i < newsize; i++) {
+//         float real = Ihat[2 * i] * wavelet->wavelet[2 * i] - Ihat[2 * i + 1] * wavelet->wavelet[2 * i + 1];
+//         float imag = Ihat[2 * i + 1] * wavelet->wavelet[2 * i] + Ihat[2 * i] * wavelet->wavelet[2 * i + 1];
+//         O1[2 * i] = real;
+//         O1[2 * i + 1] = imag;
+//     }
+
+//     // Выполнение обратного FFT
+//     arm_cfft_f32(&cfft_instance, O1, 1, 1);
+
+//     for (int i = 0; i < size; i++) {
+//         out[i] = complex<float>(O1[2 * i], O1[2 * i + 1]);
+//     }
+// }
+
 
 void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
     cwt(pinput, psize, poutput, scales, false);

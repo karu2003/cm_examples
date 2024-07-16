@@ -149,14 +149,17 @@ class FCWT {
     //     void cwt_static(float *pinput, int psize, float* poutput, float* scales);
     //     void cwt_dynamic(float *pinput, int psize, float* poutput, float* scales);
     //     void convolve(fftwf_plan p, fftwf_complex *Ihat, fftwf_complex *O1, complex<float> *out, Wavelet *wav, int size, int newsize, float scale, bool lastscale);
+        void FCWT::convolve(arm_cfft_instance_f32 &cfft_instance, float *Ihat, float *O1, complex<float> *out, Wavelet *wav, int size, int newsize, float scale, bool lastscale);
     //     void convolve(float* in, complex<float> *out, Wavelet *wav, float scale);
     //     void fftbased(fftwf_plan p, fftwf_complex *Ihat, fftwf_complex *O1, float *out, float* mother, int size, float scale, bool imaginary, bool doublesided);
+        void FCWT::fftbased(arm_cfft_instance_f32 &cfft_instance, float *Ihat, float *O1, float *out, float* mother, int size, float scale, bool imaginary, bool doublesided);
     //     void firbased(float* in, float *out, Wavelet *wav, float scale);
     //     void fft_normalize(complex<float>* out, int size);
     //     void main(float *Rinput,float *Routput);
     //     void load_FFT_optimization_plan();
     //     void daughter_wavelet_multiplication(fftwf_complex *input, fftwf_complex *output, float const *mother, float scale, int isize, bool imaginary, bool doublesided);
     //     void daughter_wavelet_multiplication(float *input, float *output, float const *mother, float scale, int isize, bool imaginary, bool doublesided);
+        void FCWT::daughter_wavelet_multiplication(float *input, float *output, const float *mother, float scale, int isize, bool imaginary, bool doublesided);
     //     void calculate_logscale_array(float base, float four_wavl, float *scales);
     //     void calculate_linscale_array(float four_wavl, float *scales);
 
