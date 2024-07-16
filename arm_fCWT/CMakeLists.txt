@@ -36,7 +36,7 @@ set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb"
 )
 
-add_executable_m7(fCWT arm_fCWT.cc fcwt.cpp)
+add_executable_m7(fCWT arm_fCWT.cc fcwt.cc)
 
 file(GLOB CMSIS_DSP_SOURCES "${CMSIS_DSP_PATH}/Source/TransformFunctions/*.c"
      "${CMSIS_DSP_PATH}/Source/CommonTables/*.c" "${CMSIS_DSP_PATH}/Source/StatisticsFunctions/*.c" "${CMSIS_DSP_PATH}/Source/FilteringFunctions/*.c")

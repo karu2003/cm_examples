@@ -184,7 +184,6 @@ void Scales::calculate_linscale_array(float four_wavl, int fs, float f0, float f
     }
 }
 
-
 //==============================================================//
 //================== FCWT =====================================//
 //==============================================================//
@@ -289,9 +288,6 @@ void FCWT::fft_normalize(complex<float> *out, int size) {
         out[i] = out[i] / static_cast<float>(size);
     }
 }
-
-
-
 
 void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
     cwt(pinput, psize, poutput, scales, false);
