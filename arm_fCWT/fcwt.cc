@@ -243,40 +243,40 @@ void FCWT::cwt(float32_t *pinput, int psize, complex<float> *poutput, Scales *sc
     // Инициализация FFT планов
     arm_cfft_init_f32(&cfft_instance, newsize);
 
-    // Выполнение прямого FFT на входном сигнале
+    // Выполнение прямого FFT входного сигнала
     float32_t *input;
     if (complexinput) {
         input = (float32_t *)pvPortMalloc(2 * newsize * sizeof(complex<float>));
-        memcpy(input, pinput, sizeof(complex<float>) * size);
-        arm_cfft_f32(&cfft_instance, input, 0, 1);
-        memcpy(Ihat, input, 2 * newsize * sizeof(float32_t));
+    //     memcpy(input, pinput, sizeof(complex<float>) * size);
+    //     arm_cfft_f32(&cfft_instance, input, 0, 1);
+    //     memcpy(Ihat, input, 2 * newsize * sizeof(float32_t));
     } else {
         input = (float32_t *)pvPortMalloc(newsize * sizeof(float32_t));
         memset(input, 0, newsize * sizeof(float32_t));
         memcpy(input, pinput, sizeof(float32_t) * size);
         arm_rfft_fast_instance_f32 rfft_instance;
-        arm_rfft_fast_init_f32(&rfft_instance, newsize);
-        arm_rfft_fast_f32(&rfft_instance, input, Ihat, 0);
+        // arm_rfft_fast_init_f32(&rfft_instance, newsize);
+    //     arm_rfft_fast_f32(&rfft_instance, input, Ihat, 0);
     }
     vPortFree(input);
 
     // Генерация материнской вейвлет-функции
     wavelet->generate(newsize);
 
-    // Конвертирование вектора ИХАТ
-    for (int i = 1; i < (newsize >> 1); i++) {
-        Ihat[2 * (newsize - i)] = Ihat[2 * i];
-        Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
-    }
+    // // Конвертирование вектора ИХАТ
+    // for (int i = 1; i < (newsize >> 1); i++) {
+    //     Ihat[2 * (newsize - i)] = Ihat[2 * i];
+    //     Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
+    // }
 
-    complex<float> *out = poutput;
+    // complex<float> *out = poutput;
 
-    for (int i = 0; i < scales->nscales; i++) {
-        // Свертка на основе FFT в частотной области
-        fftbased(cfft_instance, Ihat, O1, (float32_t *)out, wavelet->mother, newsize, scales->scales[i], wavelet->imag_frequency, wavelet->doublesided);
-        if (use_normalization) fft_normalize(out, newsize);
-        out += size;
-    }
+    // for (int i = 0; i < scales->nscales; i++) {
+    //     // Свертка на основе FFT в частотной области
+    //     fftbased(cfft_instance, Ihat, O1, (float32_t *)out, wavelet->mother, newsize, scales->scales[i], wavelet->imag_frequency, wavelet->doublesided);
+    //     if (use_normalization) fft_normalize(out, newsize);
+    //     out += size;
+    // }
 
     // Очистка
     vPortFree(Ihat);

@@ -90,7 +90,7 @@ extern "C" [[noreturn]] void app_main(void* param) {
 
     Scales scs(wavelet, FCWT_LINFREQS, fs, f0, f1, fn);
 
-    // fcwt.cwt(&sig[0], n, &tfm[0], &scs);
+    fcwt.cwt(&sig[0], n, &tfm[0], &scs);
 
     GpioConfigureInterrupt(
         Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
