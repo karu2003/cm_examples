@@ -226,48 +226,60 @@ void FCWT::fftbased(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float
     memcpy(out, O1, 2 * size * sizeof(float32_t));
 }
 
-void FCWT::cwt(float32_t *pinput, int psize, complex<float> *poutput, Scales *scales, bool complexinput) {
+void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
     arm_cfft_instance_f32 cfft_instance;
     size = psize;
 
-    // Найти ближайшую степень двойки
+    // Find the closest power of two
     const int nt = find2power(size);
     const int newsize = 1 << nt;
 
-    // Инициализация промежуточного результата
+    // Initialize the intermediate result
     float32_t *Ihat = (float32_t *)pvPortMalloc(2 * newsize * sizeof(float32_t));
     float32_t *O1 = (float32_t *)pvPortMalloc(2 * newsize * sizeof(float32_t));
     memset(Ihat, 0, 2 * newsize * sizeof(float32_t));
     memset(O1, 0, 2 * newsize * sizeof(float32_t));
 
-    // Инициализация FFT планов
-    arm_cfft_init_f32(&cfft_instance, newsize);
-
-    // Выполнение прямого FFT входного сигнала
-    float32_t *input;
-    if (complexinput) {
-        input = (float32_t *)pvPortMalloc(2 * newsize * sizeof(complex<float>));
-    //     memcpy(input, pinput, sizeof(complex<float>) * size);
-    //     arm_cfft_f32(&cfft_instance, input, 0, 1);
-    //     memcpy(Ihat, input, 2 * newsize * sizeof(float32_t));
-    } else {
-        input = (float32_t *)pvPortMalloc(newsize * sizeof(float32_t));
-        memset(input, 0, newsize * sizeof(float32_t));
-        memcpy(input, pinput, sizeof(float32_t) * size);
-        arm_rfft_fast_instance_f32 rfft_instance;
-        // arm_rfft_fast_init_f32(&rfft_instance, newsize);
-    //     arm_rfft_fast_f32(&rfft_instance, input, Ihat, 0);
+    // Initialize FFT plans
+    status = arm_cfft_init_f32(&cfft_instance, newsize);
+    if (status != ARM_MATH_SUCCESS) {
+        printf("CFFT initialization error!\n");
     }
-    vPortFree(input);
 
-    // Генерация материнской вейвлет-функции
+    // Calculating forward FFT
+    float32_t *input_float32 = (float32_t *)pvPortMalloc(2 * newsize * sizeof(float32_t));
+    if (input_float32 == NULL) {
+        printf("Memory allocation error!\n");
+    }
+
+    for (int i = 0; i < newsize; i++) {
+        input_float32[2 * i] = pinput[i];  // The real part
+        input_float32[2 * i + 1] = 0.0f;   // The imaginary part is zero
+    }
+
+    arm_cfft_f32(&cfft_instance, input_float32, 0, 1);
+    memcpy(Ihat, input_float32, 2 * newsize * sizeof(float32_t));
+
+    vPortFree(input_float32);
+
+    // Generation of the mother wavelet function
     wavelet->generate(newsize);
 
-    // // Конвертирование вектора ИХАТ
-    // for (int i = 1; i < (newsize >> 1); i++) {
-    //     Ihat[2 * (newsize - i)] = Ihat[2 * i];
-    //     Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
-    // }
+    for (int i = 0; i < newsize; ++i) {
+        printf("%f\n\r", Ihat[i]);
+        vTaskDelay(pdMS_TO_TICKS(8));
+    }
+
+    // Convert the Ihat vector
+    for (int i = 1; i < (newsize >> 1); i++) {
+        Ihat[2 * (newsize - i)] = Ihat[2 * i];
+        Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
+    }
+
+    for (int i = 0; i < newsize; ++i) {
+        printf("%f\n\r", Ihat[i]);
+        vTaskDelay(pdMS_TO_TICKS(8));
+    }
 
     // complex<float> *out = poutput;
 
@@ -289,20 +301,24 @@ void FCWT::fft_normalize(complex<float> *out, int size) {
     }
 }
 
-void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
-    cwt(pinput, psize, poutput, scales, false);
-}
+// void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
+//     cwt(pinput, psize, poutput, scales);
+// }
 
-void FCWT::cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales) {
-    cwt((float *)pinput, psize, poutput, scales, true);
-}
+// void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
+//     cwt(pinput, psize, poutput, scales, false);
+// }
 
-void FCWT::cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
-    assert((psize * scales->nscales) == (pn1 * pn2));
-    cwt(pinput, psize, poutput, scales);
-}
+// void FCWT::cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales) {
+//     cwt((float *)pinput, psize, poutput, scales, true);
+// }
 
-void FCWT::cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
-    assert((psize * scales->nscales) == (pn1 * pn2));
-    cwt(pinput, psize, poutput, scales);
-}
+// void FCWT::cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
+//     assert((psize * scales->nscales) == (pn1 * pn2));
+//     cwt(pinput, psize, poutput, scales);
+// }
+
+// void FCWT::cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
+//     assert((psize * scales->nscales) == (pn1 * pn2));
+//     cwt(pinput, psize, poutput, scales);
+// }

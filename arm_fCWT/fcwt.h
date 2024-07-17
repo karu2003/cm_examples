@@ -39,13 +39,14 @@ limitations under the License.
 #include <stdlib.h>
 // #include <cstring>
 #include <stdbool.h>
-#include <vector>
+// #include <vector>
 // #include <chrono>
-#include <cassert>
+// #include <cassert>
 #include <math.h>
 #include <complex>
 #include "arm_math.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
+#include "third_party/freertos_kernel/include/task.h"
 
 // #include <iostream>
 // #include <sstream>
@@ -59,7 +60,7 @@ limitations under the License.
 //     #include <unistd.h>
 // #endif
 // #include "fftw3.h"
-#include <memory>
+// #include <memory>
 // check if avx is supported and include the header
 //  #if defined(__AVX__)
 //      #include <immintrin.h>
@@ -138,15 +139,16 @@ class FCWT {
 
     //     void FCWT_LIBRARY_API create_FFT_optimization_plan(int pmaxsize, int poptimizationflags);
     //     void FCWT_LIBRARY_API create_FFT_optimization_plan(int pmaxsize, string poptimizationflags);
-    void FCWT_LIBRARY_API cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales);
-    void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales);
-    void FCWT_LIBRARY_API cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2);
-    void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2);
+    // void FCWT_LIBRARY_API cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales);
+    void FCWT_LIBRARY_API cwt(float32_t *pinput, int psize, complex<float> *poutput, Scales *scales);
+    // void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales);
+    // void FCWT_LIBRARY_API cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2);
+    // void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2);
 
     Wavelet *wavelet;
 
    private:
-    void cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales, bool complexinput);
+    // void cwt(float32_t *pinput, int psize, complex<float> *poutput, Scales *scales);
     //     void cwt_static(float *pinput, int psize, float* poutput, float* scales);
     //     void cwt_dynamic(float *pinput, int psize, float* poutput, float* scales);
     //     void convolve(fftwf_plan p, fftwf_complex *Ihat, fftwf_complex *O1, complex<float> *out, Wavelet *wav, int size, int newsize, float scale, bool lastscale);
@@ -170,6 +172,7 @@ class FCWT {
     float fs, f0, f1, fn;
     // bool use_optimalization_schemes;
     bool use_normalization;
+    arm_status status;
 };
 
 inline int find2power(int n) {

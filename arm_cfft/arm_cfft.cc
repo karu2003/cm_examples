@@ -144,10 +144,10 @@ extern "C" [[noreturn]] void app_main(void* param) {
     uint64_t lastMicros;
     arm_status status;
     // float* input_data = new float[FFT_SIZE];
-    const int signal_length = 1024;   // Длина сигнала в выборках
+    const int signal_length = 1024;  // Длина сигнала в выборках
     float sampling_rate = 96000.0f;  // Частота дискретизации в Гц
-    float start_freq = 7000.0f;       // Начальная частота в Гц
-    float end_freq = 17000.0f;        // Конечная частота в Гц (может быть скорректирована функцией)
+    float start_freq = 7000.0f;      // Начальная частота в Гц
+    float end_freq = 17000.0f;       // Конечная частота в Гц (может быть скорректирована функцией)
 
     // Расчет конечной частоты
     // end_freq = calculate_end_frequency(START_FREQ, TARGET_END_FREQ, DURATION);
@@ -225,15 +225,15 @@ extern "C" [[noreturn]] void app_main(void* param) {
             power_spectrum[i] = power_spectrum[i] / max_power;
         }
 
-        // for (int i = 0; i < FFT_SIZE / 2; ++i) {
-        //     printf("%f\n\r", power_spectrum[i]);
-        //     vTaskDelay(pdMS_TO_TICKS(8));
-        // }
-
-        for (int i = 0; i < FFT_SIZE; ++i) {
-            printf("%f\n\r", input_data[i]);
+        for (int i = 0; i < FFT_SIZE/2; ++i) {
+            printf("%f\n\r", power_spectrum[i]);
             vTaskDelay(pdMS_TO_TICKS(8));
         }
+
+        // for (int i = 0; i < FFT_SIZE; ++i) {
+        //     printf("%f\n\r", input_data[i]);
+        //     vTaskDelay(pdMS_TO_TICKS(8));
+        // }
 
         printf("calculation time: %lu uS\n\r", static_cast<uint32_t>(lastMicros));
     }
