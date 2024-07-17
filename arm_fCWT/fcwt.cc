@@ -260,15 +260,30 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
     arm_cfft_f32(&cfft_instance, input_float32, 0, 1);
     memcpy(Ihat, input_float32, 2 * newsize * sizeof(float32_t));
 
+    for (int i = 0; i < newsize; i++) {
+        printf("%f\n\r", input_float32[2 * i]);//, input_float32[2 * i + 1]);
+        vTaskDelay(pdMS_TO_TICKS(8));
+    }
+
     vPortFree(input_float32);
 
     // Generation of the mother wavelet function
     wavelet->generate(newsize);
 
-    for (int i = 0; i < newsize; ++i) {
-        printf("%f\n\r", Ihat[i]);
-        vTaskDelay(pdMS_TO_TICKS(8));
-    }
+    // for (int i = 0; i < newsize; ++i) {
+    //     printf("%f\n\r", pinput[i]);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
+
+    // for (int i = 0; i < newsize; i++) {
+    //     printf("%f, %f\n\r", Ihat[2 * i], Ihat[2 * i + 1]);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
+
+    // for (int i = 0; i < newsize; ++i) {
+    //     printf("%f\n\r", Ihat[i]);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
 
     // Convert the Ihat vector
     for (int i = 1; i < (newsize >> 1); i++) {
@@ -276,10 +291,10 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
         Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
     }
 
-    for (int i = 0; i < newsize; ++i) {
-        printf("%f\n\r", Ihat[i]);
-        vTaskDelay(pdMS_TO_TICKS(8));
-    }
+    // for (int i = 0; i < newsize; ++i) {
+    //     printf("%f\n\r", Ihat[i]);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
 
     // complex<float> *out = poutput;
 

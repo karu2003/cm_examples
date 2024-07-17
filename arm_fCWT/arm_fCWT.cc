@@ -70,12 +70,12 @@ extern "C" [[noreturn]] void app_main(void* param) {
     // uint64_t lastMicros;
     // uint32_t size = 512;  // CPU freezes with 1024 size
 
-    int n = 1024;         // signal length
-    const int fs = 96000.0f;  // sampling frequency
-    // float twopi = 2.0 * 3.1415;
+    int n = 1000;         // signal length
+    const int fs = 1000;  // sampling frequency
+    float twopi = 2.0 * 3.1415;
 
-    const float f0 = 7000.0f;
-    const float f1 = 17000.0f;
+    const float f0 = 0.1;
+    const float f1 = 20;
     const int fn = 10;
 
     // input: n real numbers
@@ -85,11 +85,11 @@ extern "C" [[noreturn]] void app_main(void* param) {
     std::complex<float>* tfm = new std::complex<float>[n * fn];
 
     // // initialize with 1 Hz cosine wave
-    // for (int i = 0; i < n; ++i) {
-    //     sig[i] = cos(twopi * static_cast<float>(i) / static_cast<float>(fs));
-    // }
+    for (int i = 0; i < n; ++i) {
+        sig[i] = cos(twopi * static_cast<float>(i) / static_cast<float>(fs));
+    }
 
-    Chirp_One(sig, f0, f1, n, fs);
+    // Chirp_One(sig, f0, f1, n, fs);
 
     Wavelet* wavelet;
 

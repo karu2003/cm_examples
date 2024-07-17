@@ -4,7 +4,7 @@
 #include <stdlib.h>
 // #include <string.h>
 #include <complex>
-// #include <vector>
+#include <vector>
 // #include <memory>
 
 #include "arm_math.h"
@@ -171,8 +171,16 @@ extern "C" [[noreturn]] void app_main(void* param) {
     // init_chirp_signal(input_data, signal_length, start_freq, end_freq, sampling_rate);
     // init_chirp_signal(end_freq);
     // generate_chirp_signal(input_data, sampling_rate, start_freq, end_freq, signal_length);
-    lchirp(input_data, signal_length, start_freq, end_freq, sampling_rate, true, false);
+    // lchirp(input_data, signal_length, start_freq, end_freq, sampling_rate, true, false);
     // Chirp_One(input_data, start_freq, end_freq, signal_length, sampling_rate);
+
+    int n = 1024;         // signal length
+    const int fs = 1000;  // sampling frequency
+
+    for (int i = 0; i < n; i++) {
+        float t = i / static_cast<float>(fs);   // Время в секундах
+        input_data[i] = cos(2 * M_PI * 5 * t);  // A*cos(2*pi*f*t), A=1, f=1Hz
+    }
 
     // Преобразование real float в float32_t для CFFT
     float32_t* input_float32 = (float32_t*)pvPortMalloc(2 * FFT_SIZE * sizeof(float32_t));
@@ -225,7 +233,7 @@ extern "C" [[noreturn]] void app_main(void* param) {
             power_spectrum[i] = power_spectrum[i] / max_power;
         }
 
-        for (int i = 0; i < FFT_SIZE/2; ++i) {
+        for (int i = 0; i < FFT_SIZE / 2; ++i) {
             printf("%f\n\r", power_spectrum[i]);
             vTaskDelay(pdMS_TO_TICKS(8));
         }
