@@ -248,20 +248,39 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
 
     // Calculating forward FFT
     float32_t *input_float32 = (float32_t *)pvPortMalloc(2 * newsize * sizeof(float32_t));
+    memset(input_float32, 0, 2 * newsize * sizeof(float32_t));
+
     if (input_float32 == NULL) {
         printf("Memory allocation error!\n");
     }
 
-    for (int i = 0; i < newsize; i++) {
+    for (int i = 0; i < psize; i++) {
         input_float32[2 * i] = pinput[i];  // The real part
         input_float32[2 * i + 1] = 0.0f;   // The imaginary part is zero
     }
 
+    // for (int i = 0; i < newsize; i++) {
+    //     printf("%f, %f \n\r", input_float32[2 * i], input_float32[2 * i + 1]);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
+
     arm_cfft_f32(&cfft_instance, input_float32, 0, 1);
     memcpy(Ihat, input_float32, 2 * newsize * sizeof(float32_t));
 
+    // for (int i = 0; i < newsize / 2; i++) {
+    //     printf("%f,%f\n\r", input_float32[2 * i], input_float32[2 * i + 1]);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
+
+    // for (int i = 0; i < newsize / 2; i++) {
+    //     printf("%f,%f\n\r", Ihat[2 * i], Ihat[2 * i + 1]);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
+
     for (int i = 0; i < newsize; i++) {
-        printf("%f\n\r", input_float32[2 * i]);//, input_float32[2 * i + 1]);
+        float real = Ihat[2 * i];
+        float imag = Ihat[2 * i + 1];
+        printf("%f\n\r", real * real + imag * imag);
         vTaskDelay(pdMS_TO_TICKS(8));
     }
 
