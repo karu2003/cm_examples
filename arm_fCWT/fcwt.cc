@@ -215,6 +215,7 @@ void FCWT::daughter_wavelet_multiplication(float32_t *input, float32_t *output, 
     }
 }
 
+
 void FCWT::fftbased(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float32_t *O1, float32_t *out, const float32_t *mother, int size, float scale, bool imaginary, bool doublesided) {
     // Генерация дочерней вейвлет-функции и умножение с преобразованным входным сигналом
     daughter_wavelet_multiplication(Ihat, O1, mother, scale, size, imaginary, doublesided);
@@ -248,13 +249,12 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
 
     // Calculating forward FFT
     float32_t *input_float32 = (float32_t *)pvPortMalloc(2 * newsize * sizeof(float32_t));
-    memset(input_float32, 0, 2 * newsize * sizeof(float32_t));
-
     if (input_float32 == NULL) {
         printf("Memory allocation error!\n");
     }
-
-    for (int i = 0; i < psize; i++) {
+    memset(input_float32, 0, 2 * newsize * sizeof(float32_t));
+    // Copy the input signal to the float32 array
+    for (int i = 0; i < size; i++) {
         input_float32[2 * i] = pinput[i];  // The real part
         input_float32[2 * i + 1] = 0.0f;   // The imaginary part is zero
     }
@@ -277,12 +277,12 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
     //     vTaskDelay(pdMS_TO_TICKS(8));
     // }
 
-    for (int i = 0; i < newsize; i++) {
-        float real = Ihat[2 * i];
-        float imag = Ihat[2 * i + 1];
-        printf("%f\n\r", real * real + imag * imag);
-        vTaskDelay(pdMS_TO_TICKS(8));
-    }
+    // for (int i = 0; i < newsize; i++) {
+    //     float real = Ihat[2 * i];
+    //     float imag = Ihat[2 * i + 1];
+    //     printf("%f\n\r", real * real + imag * imag);
+    //     vTaskDelay(pdMS_TO_TICKS(8));
+    // }
 
     vPortFree(input_float32);
 
@@ -305,26 +305,27 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
     // }
 
     // Convert the Ihat vector
-    for (int i = 1; i < (newsize >> 1); i++) {
-        Ihat[2 * (newsize - i)] = Ihat[2 * i];
-        Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
-    }
+    // for (int i = 1; i < (newsize >> 1); i++) {
+    //     Ihat[2 * (newsize - i)] = Ihat[2 * i];
+    //     Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
+    // }
 
-    // for (int i = 0; i < newsize; ++i) {
-    //     printf("%f\n\r", Ihat[i]);
+    // for (int i = 0; i < newsize; i++) {
+    //     printf("%f, %f\n\r", Ihat[2 * i], Ihat[2 * i + 1]);
     //     vTaskDelay(pdMS_TO_TICKS(8));
     // }
 
-    // complex<float> *out = poutput;
+    complex<float> *out = poutput;
 
-    // for (int i = 0; i < scales->nscales; i++) {
-    //     // Свертка на основе FFT в частотной области
-    //     fftbased(cfft_instance, Ihat, O1, (float32_t *)out, wavelet->mother, newsize, scales->scales[i], wavelet->imag_frequency, wavelet->doublesided);
-    //     if (use_normalization) fft_normalize(out, newsize);
-    //     out += size;
-    // }
+    for (int i = 0; i < scales->nscales; i++) {
+        // Свертка на основе FFT в частотной области
+        // convolve(cfft_instance, Ihat, O1, out, wavelet, size, newsize, scales->scales[i], i == (scales->nscales - 1));
+        fftbased(cfft_instance, Ihat, O1, (float32_t *)out, wavelet->mother, newsize, scales->scales[i], wavelet->imag_frequency, wavelet->doublesided);
+        // if (use_normalization) fft_normalize(out, newsize);
+        out += size;
+    }
 
-    // Очистка
+    // Cleanup
     vPortFree(Ihat);
     vPortFree(O1);
 }
