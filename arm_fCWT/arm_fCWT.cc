@@ -66,17 +66,29 @@ void Chirp_One(float* output_signal, float start_freq, float end_freq, int num_p
     }
 }
 
-extern "C" [[noreturn]] void app_main(void* param) {
-    // uint64_t lastMicros;
-    // uint32_t size = 512;  // CPU freezes with 1024 size
+void printTFM(std::complex<float>* tfm, int n, int fn, float f0, float f1) {
+    printf("%d %d %d %d\n", n, fn, (int)f0, (int)f1);
 
-    int n = 1000;         // signal length
-    const int fs = 1000;  // sampling frequency
+    int totalLength = n * fn;
+    for (int i = 0; i < totalLength; ++i) {
+        printf("%f,%f\n", tfm[i].real(), tfm[i].imag());
+    }
+}
+
+extern "C" [[noreturn]] void app_main(void* param) {
+    uint64_t lastMicros;
     float twopi = 2.0 * 3.1415;
 
-    const float f0 = 0.1;
-    const float f1 = 20;
-    const int fn = 10;
+    int n = 1000;            // signal length 1000
+    const int fs = 192000;   // sampling frequency 192000
+    float noise = 1.0;       // noise amplitude
+    const float wvl = 2.0f;  // wavelet sigma
+    const float f0 = 3400;
+    const float f1 = 34000;
+    const int fn = 20;  // 200
+    int chirp_n = 500;
+    const float fstart = 7000;
+    const float fend = 17000;
 
     // input: n real numbers
     float* sig = new float[n];
@@ -85,16 +97,16 @@ extern "C" [[noreturn]] void app_main(void* param) {
     std::complex<float>* tfm = new std::complex<float>[n * fn];
 
     // // initialize with 1 Hz cosine wave
-    for (int i = 0; i < n; ++i) {
-        sig[i] = cos(twopi * static_cast<float>(i) / static_cast<float>(fs));
-    }
+    // for (int i = 0; i < n; ++i) {
+    //     sig[i] = cos(twopi * static_cast<float>(i) / static_cast<float>(fs));
+    // }
 
-    // Chirp_One(sig, f0, f1, n, fs);
+    Chirp_One(sig, fstart, fend, n, fs);
 
     Wavelet* wavelet;
 
     // Initialize a Morlet wavelet having sigma=1.0;
-    Morlet morl(1.0f);
+    Morlet morl(wvl);
     wavelet = &morl;
 
     FCWT fcwt(wavelet, false);
@@ -111,22 +123,15 @@ extern "C" [[noreturn]] void app_main(void* param) {
 
     while (true) {
         vTaskSuspend(nullptr);
-        fcwt.cwt(&sig[0], n, &tfm[0], &scs);
-        // for (int i = 0; i < scs.nscales; i++) {
 
-        //     vTaskDelay(pdMS_TO_TICKS(8));
-        // }
+        // lastMicros = TimerMicros();
+        // fcwt.cwt(&sig[0], n, &tfm[0], &scs);
+        // lastMicros = TimerMicros() - lastMicros;
+        // printf("calculation time: %lu uS\n\r", static_cast<uint32_t>(lastMicros));
 
-        // for (int i = 0; i < n; i++) {
-        //     printf("%f\n\r", sig[i]);
-        //     vTaskDelay(pdMS_TO_TICKS(8));
-        // }
+        measure_function_time([&]() { fcwt.cwt(&sig[0], n, &tfm[0], &scs); });
 
-        // printf("%d\n\r", scs.nscales);
-        // for (int i = 0; i < scs.nscales; i++) {
-        //     printf("%f\n\r", scs.scales[i]);
-        //     vTaskDelay(pdMS_TO_TICKS(8));
-        // }
+        // printTFM(tfm, n, fn, f0, f1);
     }
     delete[] sig;
     delete[] tfm;

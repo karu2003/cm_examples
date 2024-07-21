@@ -71,16 +71,13 @@ void Morlet::generate(float *real, float *imag, int size, float scale) {
     width = getSupport(scale);
     float norm = (float)size * ifb * IPI4;
 
-    // cout << scale << " [";
     for (int t = 0; t < width * 2 + 1; t++) {
         tmp1 = (float)(t - width) / scale;
         tmp2 = exp(-(tmp1 * tmp1) / (fb2));
 
         real[t] = norm * tmp2 * cos(tmp1 * 2.0f * PI) / scale;
         imag[t] = norm * tmp2 * sin(tmp1 * 2.0f * PI) / scale;
-        // cout << real[t]*real[t]+imag[t]*imag[t] << ",";
     }
-    // cout << "]" << endl;
 }
 
 void Morlet::getWavelet(float scale, complex<float> *pwav, int pn) {
@@ -104,9 +101,9 @@ void Morlet::getWavelet(float scale, complex<float> *pwav, int pn) {
     delete imag;
 };
 
-//==============================================================//
-//================== Scales =====================================//
-//==============================================================//
+//=============================================================//
+//================== Scales ===================================//
+//=============================================================//
 
 Scales::Scales(Wavelet *wav, SCALETYPE st, int afs, float af0, float af1, int afn) {
     fs = afs;
@@ -140,10 +137,6 @@ void Scales::calculate_logscale_array(float base, float four_wavl, int fs, float
     float nf1 = f1;
     float s0 = (fs / nf1);
     float s1 = (fs / nf0);
-
-    // Cannot pass the nyquist frequency
-    assert(("Max frequency cannot be higher than the Nyquist frequency (fs/2)", f1 <= fs / 2));
-
     float power0 = log(s0) / log(base);
     float power1 = log(s1) / log(base);
     float dpower = power1 - power0;
@@ -158,9 +151,6 @@ void Scales::calculate_linfreq_array(float four_wavl, int fs, float f0, float f1
     float nf0 = f0;
     float nf1 = f1;
     // If a signal has fs=100hz and you want to measure [0.1-50]Hz, you need scales 2 to 1000;
-
-    // Cannot pass the nyquist frequency
-    assert(("Max frequency cannot be higher than the Nyquist frequency (fs/2)", f1 <= fs / 2));
     float df = nf1 - nf0;
 
     for (int i = 0; i < fn; i++) {
@@ -174,9 +164,6 @@ void Scales::calculate_linscale_array(float four_wavl, int fs, float f0, float f
     // If a signal has fs=100hz and you want to measure [0.1-50]Hz, you need scales 2 to 1000;
     float s0 = fs / nf1;
     float s1 = fs / nf0;
-
-    // Cannot pass the nyquist frequency
-    assert(("Max frequency cannot be higher than the Nyquist frequency (fs/2)", f1 <= fs / 2));
     float ds = s1 - s0;
 
     for (int i = 0; i < fn; i++) {
@@ -184,9 +171,9 @@ void Scales::calculate_linscale_array(float four_wavl, int fs, float f0, float f
     }
 }
 
-//==============================================================//
+//=============================================================//
 //================== FCWT =====================================//
-//==============================================================//
+//=============================================================//
 
 void FCWT::daughter_wavelet_multiplication(float32_t *input, float32_t *output, const float32_t *mother, float scale, int isize, bool imaginary, bool doublesided) {
     float isizef = static_cast<float>(isize);
@@ -215,15 +202,12 @@ void FCWT::daughter_wavelet_multiplication(float32_t *input, float32_t *output, 
     }
 }
 
-
 void FCWT::fftbased(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float32_t *O1, float32_t *out, const float32_t *mother, int size, float scale, bool imaginary, bool doublesided) {
-    // Генерация дочерней вейвлет-функции и умножение с преобразованным входным сигналом
+    // Generation of child wavelet function and multiplication with transformed input signal
     daughter_wavelet_multiplication(Ihat, O1, mother, scale, size, imaginary, doublesided);
-
-    // Выполнение обратного FFT с использованием ARM CMSIS-DSP
+    // Performing inverse FFT using ARM CMSIS-DSP
     arm_cfft_f32(&cfft_instance, O1, 1, 1);
-
-    // Копирование результата в выходной буфер
+    // Copying the result to the output buffer
     memcpy(out, O1, 2 * size * sizeof(float32_t));
 }
 
@@ -243,15 +227,15 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
 
     // Initialize FFT plans
     status = arm_cfft_init_f32(&cfft_instance, newsize);
-    if (status != ARM_MATH_SUCCESS) {
-        printf("CFFT initialization error!\n");
-    }
+    // if (status != ARM_MATH_SUCCESS) {
+    //     printf("CFFT initialization error!\n");
+    // }
 
     // Calculating forward FFT
     float32_t *input_float32 = (float32_t *)pvPortMalloc(2 * newsize * sizeof(float32_t));
-    if (input_float32 == NULL) {
-        printf("Memory allocation error!\n");
-    }
+    // if (input_float32 == NULL) {
+    //     printf("Memory allocation error!\n");
+    // }
     memset(input_float32, 0, 2 * newsize * sizeof(float32_t));
     // Copy the input signal to the float32 array
     for (int i = 0; i < size; i++) {
@@ -259,69 +243,20 @@ void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales
         input_float32[2 * i + 1] = 0.0f;   // The imaginary part is zero
     }
 
-    // for (int i = 0; i < newsize; i++) {
-    //     printf("%f, %f \n\r", input_float32[2 * i], input_float32[2 * i + 1]);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
-
     arm_cfft_f32(&cfft_instance, input_float32, 0, 1);
     memcpy(Ihat, input_float32, 2 * newsize * sizeof(float32_t));
-
-    // for (int i = 0; i < newsize / 2; i++) {
-    //     printf("%f,%f\n\r", input_float32[2 * i], input_float32[2 * i + 1]);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
-
-    // for (int i = 0; i < newsize / 2; i++) {
-    //     printf("%f,%f\n\r", Ihat[2 * i], Ihat[2 * i + 1]);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
-
-    // for (int i = 0; i < newsize; i++) {
-    //     float real = Ihat[2 * i];
-    //     float imag = Ihat[2 * i + 1];
-    //     printf("%f\n\r", real * real + imag * imag);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
 
     vPortFree(input_float32);
 
     // Generation of the mother wavelet function
     wavelet->generate(newsize);
 
-    // for (int i = 0; i < newsize; ++i) {
-    //     printf("%f\n\r", pinput[i]);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
-
-    // for (int i = 0; i < newsize; i++) {
-    //     printf("%f, %f\n\r", Ihat[2 * i], Ihat[2 * i + 1]);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
-
-    // for (int i = 0; i < newsize; ++i) {
-    //     printf("%f\n\r", Ihat[i]);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
-
-    // Convert the Ihat vector
-    // for (int i = 1; i < (newsize >> 1); i++) {
-    //     Ihat[2 * (newsize - i)] = Ihat[2 * i];
-    //     Ihat[2 * (newsize - i) + 1] = -Ihat[2 * i + 1];
-    // }
-
-    // for (int i = 0; i < newsize; i++) {
-    //     printf("%f, %f\n\r", Ihat[2 * i], Ihat[2 * i + 1]);
-    //     vTaskDelay(pdMS_TO_TICKS(8));
-    // }
-
     complex<float> *out = poutput;
 
     for (int i = 0; i < scales->nscales; i++) {
-        // Свертка на основе FFT в частотной области
-        // convolve(cfft_instance, Ihat, O1, out, wavelet, size, newsize, scales->scales[i], i == (scales->nscales - 1));
+        // FFT based convolution in frequency domain
         fftbased(cfft_instance, Ihat, O1, (float32_t *)out, wavelet->mother, newsize, scales->scales[i], wavelet->imag_frequency, wavelet->doublesided);
-        // if (use_normalization) fft_normalize(out, newsize);
+        if (use_normalization) fft_normalize(out, newsize);
         out += size;
     }
 
@@ -335,25 +270,3 @@ void FCWT::fft_normalize(complex<float> *out, int size) {
         out[i] = out[i] / static_cast<float>(size);
     }
 }
-
-// void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
-//     cwt(pinput, psize, poutput, scales);
-// }
-
-// void FCWT::cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales) {
-//     cwt(pinput, psize, poutput, scales, false);
-// }
-
-// void FCWT::cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales) {
-//     cwt((float *)pinput, psize, poutput, scales, true);
-// }
-
-// void FCWT::cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
-//     assert((psize * scales->nscales) == (pn1 * pn2));
-//     cwt(pinput, psize, poutput, scales);
-// }
-
-// void FCWT::cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2) {
-//     assert((psize * scales->nscales) == (pn1 * pn2));
-//     cwt(pinput, psize, poutput, scales);
-// }

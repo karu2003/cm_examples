@@ -18,58 +18,16 @@ limitations under the License.
 */
 #ifndef FCWT_H
 #define FCWT_H
-
-// #ifdef _WIN32
-//   #ifdef FCWT_LIBRARY_DLL_BUILDING
-//     #define FCWT_LIBRARY_API __declspec(dllexport)
-//   #else
-//     #if FCWT_LIBRARY_DLL
-//       #define FCWT_LIBRARY_API __declspec(dllimport)
-//     #else /* static or header-only library on Windows */
-//       #define FCWT_LIBRARY_API
-//     #endif
-//   #endif
-// #else /* Unix */
-//   #define FCWT_LIBRARY_API
-// #endif
-
 #define FCWT_LIBRARY_API
 
 #include <stdio.h>
 #include <stdlib.h>
-// #include <cstring>
 #include <stdbool.h>
-// #include <vector>
-// #include <chrono>
-// #include <cassert>
 #include <math.h>
 #include <complex>
 #include "arm_math.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
 #include "third_party/freertos_kernel/include/task.h"
-
-// #include <iostream>
-// #include <sstream>
-
-// #ifndef SINGLE_THREAD
-//     #include <omp.h>
-// #endif
-// #ifdef _WIN32
-//     #include <windows.h>
-// #else
-//     #include <unistd.h>
-// #endif
-// #include "fftw3.h"
-// #include <memory>
-// check if avx is supported and include the header
-//  #if defined(__AVX__)
-//      #include <immintrin.h>
-//      #define AVX
-//      union U256f {
-//          __m256 v;
-//          float a[8];
-//      };
-//  #endif
 
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459072381640628620899862803482534211706798f
 #define sqrt2PI 2.50662827463100050241576528f
@@ -133,51 +91,24 @@ class Scales {
 
 class FCWT {
    public:
-    FCWT_LIBRARY_API FCWT(Wavelet *pwav, bool puse_normalization) : wavelet(pwav),
-                                                                    //   use_optimalization_schemes(puse_optimalization_schemes),
-                                                                    use_normalization(puse_normalization) {};
-
-    //     void FCWT_LIBRARY_API create_FFT_optimization_plan(int pmaxsize, int poptimizationflags);
-    //     void FCWT_LIBRARY_API create_FFT_optimization_plan(int pmaxsize, string poptimizationflags);
-    // void FCWT_LIBRARY_API cwt(float *pinput, int psize, complex<float> *poutput, Scales *scales);
+    FCWT_LIBRARY_API FCWT(Wavelet *pwav, bool puse_normalization) : wavelet(pwav), use_normalization(puse_normalization) {};
     void FCWT_LIBRARY_API cwt(float32_t *pinput, int psize, complex<float> *poutput, Scales *scales);
-    // void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, complex<float> *poutput, Scales *scales);
-    // void FCWT_LIBRARY_API cwt(float *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2);
-    // void FCWT_LIBRARY_API cwt(complex<float> *pinput, int psize, Scales *scales, complex<float> *poutput, int pn1, int pn2);
 
     Wavelet *wavelet;
 
    private:
-    // void cwt(float32_t *pinput, int psize, complex<float> *poutput, Scales *scales);
-    //     void cwt_static(float *pinput, int psize, float* poutput, float* scales);
-    //     void cwt_dynamic(float *pinput, int psize, float* poutput, float* scales);
-    //     void convolve(fftwf_plan p, fftwf_complex *Ihat, fftwf_complex *O1, complex<float> *out, Wavelet *wav, int size, int newsize, float scale, bool lastscale);
-    void convolve(arm_cfft_instance_f32 &cfft_instance, float *Ihat, float *O1, complex<float> *out, Wavelet *wav, int size, int newsize, float scale, bool lastscale);
-    //     void convolve(float* in, complex<float> *out, Wavelet *wav, float scale);
-    //     void fftbased(fftwf_plan p, fftwf_complex *Ihat, fftwf_complex *O1, float *out, float* mother, int size, float scale, bool imaginary, bool doublesided);
     void fftbased(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float32_t *O1, float32_t *out, const float32_t *mother, int size, float scale, bool imaginary, bool doublesided);
-    //     void firbased(float* in, float *out, Wavelet *wav, float scale);
-    //     void fft_normalize(complex<float>* out, int size);
     void fft_normalize(complex<float> *out, int size);
-    //     void main(float *Rinput,float *Routput);
-    //     void load_FFT_optimization_plan();
-    //     void daughter_wavelet_multiplication(fftwf_complex *input, fftwf_complex *output, float const *mother, float scale, int isize, bool imaginary, bool doublesided);
-    //     void daughter_wavelet_multiplication(float *input, float *output, float const *mother, float scale, int isize, bool imaginary, bool doublesided);
     void daughter_wavelet_multiplication(float *input, float *output, const float *mother, float scale, int isize, bool imaginary, bool doublesided);
-    //     void calculate_logscale_array(float base, float four_wavl, float *scales);
-    //     void calculate_linscale_array(float four_wavl, float *scales);
 
-    //     int threads;
     int size;
     float fs, f0, f1, fn;
-    // bool use_optimalization_schemes;
     bool use_normalization;
     arm_status status;
 };
 
 inline int find2power(int n) {
     int m, m2;
-
     m = 0;
     m2 = 1 << m; /* 2 to the power of m */
     while (m2 - n < 0) {
