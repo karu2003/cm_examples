@@ -125,13 +125,13 @@ extern "C" [[noreturn]] void app_main(void* param) {
         vTaskSuspend(nullptr);
 
         // lastMicros = TimerMicros();
-        // fcwt.cwt(&sig[0], n, &tfm[0], &scs);
+        fcwt.cwt(&sig[0], n, &tfm[0], &scs);
         // lastMicros = TimerMicros() - lastMicros;
         // printf("calculation time: %lu uS\n\r", static_cast<uint32_t>(lastMicros));
 
-        measure_function_time([&]() { fcwt.cwt(&sig[0], n, &tfm[0], &scs); });
+        // measure_function_time([&]() { fcwt.cwt(&sig[0], n, &tfm[0], &scs); });
 
-        // printTFM(tfm, n, fn, f0, f1);
+        printTFM(tfm, n, fn, f0, f1);
     }
     delete[] sig;
     delete[] tfm;

@@ -97,9 +97,10 @@ class FCWT {
     Wavelet *wavelet;
 
    private:
-    void fftbased(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float32_t *O1, float32_t *out, const float32_t *mother, int size, float scale, bool imaginary, bool doublesided);
+    void fftbased(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float32_t *O1, float32_t *out, float32_t *mother, int size, float scale, bool imaginary, bool doublesided);
     void fft_normalize(complex<float> *out, int size);
     void daughter_wavelet_multiplication(float *input, float *output, const float *mother, float scale, int isize, bool imaginary, bool doublesided);
+    void convolve(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float32_t *O1, float32_t *out, Wavelet *wav, int size, int newsize, float32_t scale, bool lastscale);
 
     int size;
     float fs, f0, f1, fn;
