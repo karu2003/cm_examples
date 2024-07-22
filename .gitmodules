@@ -20,4 +20,4 @@
 [submodule "lib/fCWT"]
 	path = lib/fCWT
 	url = git@github.com:karu2003/fCWT.git
-	branch = arm32
+	branch = test_plot
