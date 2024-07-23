@@ -28,7 +28,7 @@ include_directories(${CMSIS_CORE_PATH})
 include_directories(${CMSIS_INCLUDE_PATH})
 include_directories(${CMSIS_PRIVAT_PATH})
 
-# add_definitions(-DAVX)
+# add_definitions(-DCAMERA_OFF)
 
 set(CMAKE_C_FLAGS
     "${CMAKE_C_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Os -g0")
@@ -46,5 +46,5 @@ if(NOT CMSIS_DSP_SOURCES)
   message(FATAL_ERROR "No CMSIS DSP sources found")
 endif()
 
-target_link_libraries(fCWT libs_base-m7_freertos CMSIS_DSP)
-#add_link_options(-Wl,--gc-sections)
+target_link_libraries(fCWT libs_base-m7_nocam_freertos CMSIS_DSP)
+# add_link_options(-Wl,--gc-sections)

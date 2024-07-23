@@ -11,7 +11,7 @@
 #include "libs/base/queue_task.h"
 #include "libs/base/timer.h"
 #include "third_party/freertos_kernel/include/FreeRTOS.h"
-#include "third_party/freertos_kernel/include/task.h"
+// #include "third_party/freertos_kernel/include/task.h"
 #include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/fsl_device_registers.h"
 #include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/utilities/debug_console/fsl_debug_console.h"
 #include "third_party/nxp/rt1176-sdk/devices/MIMXRT1176/drivers/fsl_lpi2c_freertos.h"
@@ -20,23 +20,9 @@
 // #include <inttypes.h>
 
 #define CPU_CLOCK_HZ (CLOCK_GetFreq(kCLOCK_CpuClk))
+#define CAMERA_OFF 1
 
 namespace coralmicro {
-
-#if 0
-//void CameraTask::Init(lpi2c_rtos_handle_t* i2c_handle) {
-//}  
-class CameraTask : public QueueTask<camera::Request, camera::Response, kCameraTaskName,                                                                                                                                                                              
-                       configMINIMAL_STACK_SIZE * 10, kCameraTaskPriority
-{
-    public:
-        virtual void Init(lpi2c_rtos_handle_t* tmp)
-        {
-        }
-};   
-#endif                                                                                                                                                                                          
-
-
 namespace {
 
 // Функция для инициализации циклового счетчика DWT
@@ -148,18 +134,18 @@ extern "C" [[noreturn]] void app_main(void* param) {
         [handle = xTaskGetCurrentTaskHandle()]() { xTaskResumeFromISR(handle); },
         /*debounce_interval_us=*/50 * 1e3);
 
-    // printf("Starting ARM fCWT\n\r");
-    // printf("Press the user button to start the fCWT\n\r");
+    printf("Starting ARM fCWT\n\r");
+    printf("Press the user button to start the fCWT\n\r");
 
     while (true) {
         vTaskSuspend(nullptr);
         on = !on;
         LedSet(Led::kUser, on);
-        // if (on) {
-        //     Chirp_One(sig, fstart, fend, n, fs);
-        // } else {
-        //     Chirp_One(sig, fend, fstart, n, fs);
-        // }
+        if (on) {
+            Chirp_One(sig, fstart, fend, n, fs);
+        } else {
+            Chirp_One(sig, fend, fstart, n, fs);
+        }
 
         // lastMicros = TimerMicros();
         fcwt.cwt(&sig[0], n, &tfm[0], &scs);
