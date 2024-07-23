@@ -47,3 +47,4 @@ if(NOT CMSIS_DSP_SOURCES)
 endif()
 
 target_link_libraries(fCWT libs_base-m7_freertos CMSIS_DSP)
+#add_link_options(-Wl,--gc-sections)
