@@ -1,24 +1,5 @@
 //
 //  fcwt.cpp
-//  fCWT
-//
-//  Created by Lukas Arts on 21/12/2020.
-//  Copyright © 2021 Lukas Arts.
-/*Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-//
-//  fcwt.cpp
 //  fCWT-testing
 //
 //  Created by Lukas Arts on 21/12/2020.
@@ -80,26 +61,26 @@ void Morlet::generate(float *real, float *imag, int size, float scale) {
     }
 }
 
-// void Morlet::getWavelet(float scale, complex<float> *pwav, int pn) {
-//     int w = getSupport(scale);
+void Morlet::getWavelet(float scale, complex<float> *pwav, int pn) {
+    int w = getSupport(scale);
 
-//     float *real = (float *)malloc(sizeof(float) * max(w * 2 + 1, pn));
-//     float *imag = (float *)malloc(sizeof(float) * max(w * 2 + 1, pn));
-//     for (int t = 0; t < max(w * 2 + 1, pn); t++) {
-//         real[t] = 0;
-//         imag[t] = 0;
-//     }
+    float *real = (float *)malloc(sizeof(float) * max(w * 2 + 1, pn));
+    float *imag = (float *)malloc(sizeof(float) * max(w * 2 + 1, pn));
+    for (int t = 0; t < max(w * 2 + 1, pn); t++) {
+        real[t] = 0;
+        imag[t] = 0;
+    }
 
-//     generate(real, imag, pn, scale);
+    generate(real, imag, pn, scale);
 
-//     for (int t = 0; t < pn; t++) {
-//         pwav[t].real(real[t]);
-//         pwav[t].imag(imag[t]);
-//     }
+    for (int t = 0; t < pn; t++) {
+        pwav[t].real(real[t]);
+        pwav[t].imag(imag[t]);
+    }
 
-//     delete real;
-//     delete imag;
-// };
+    delete real;
+    delete imag;
+};
 
 //=============================================================//
 //================== Scales ===================================//
@@ -111,11 +92,11 @@ Scales::Scales(Wavelet *wav, SCALETYPE st, int afs, float af0, float af1, int af
     fourwavl = wav->four_wavelen;
     nscales = afn;
 
-    // if (st == SCALETYPE::FCWT_LOGSCALES)
-    //     calculate_logscale_array(2.0f, wav->four_wavelen, afs, af0, af1, afn);
-    // else if (st == SCALETYPE::FCWT_LINSCALES)
-    //     calculate_linscale_array(wav->four_wavelen, afs, af0, af1, afn);
-    // else
+    if (st == SCALETYPE::FCWT_LOGSCALES)
+        calculate_logscale_array(2.0f, wav->four_wavelen, afs, af0, af1, afn);
+    else if (st == SCALETYPE::FCWT_LINSCALES)
+        calculate_linscale_array(wav->four_wavelen, afs, af0, af1, afn);
+    else
         calculate_linfreq_array(wav->four_wavelen, afs, af0, af1, afn);
 }
 
@@ -131,21 +112,21 @@ void Scales::getFrequencies(float *pfreqs, int pnf) {
     };
 };
 
-// void Scales::calculate_logscale_array(float base, float four_wavl, int fs, float f0, float f1, int fn) {
-//     // If a signal has fs=100hz and you want to measure [0.1-50]Hz, you need scales 2 to 1000;
-//     float nf0 = f0;
-//     float nf1 = f1;
-//     float s0 = (fs / nf1);
-//     float s1 = (fs / nf0);
-//     float power0 = log(s0) / log(base);
-//     float power1 = log(s1) / log(base);
-//     float dpower = power1 - power0;
+void Scales::calculate_logscale_array(float base, float four_wavl, int fs, float f0, float f1, int fn) {
+    // If a signal has fs=100hz and you want to measure [0.1-50]Hz, you need scales 2 to 1000;
+    float nf0 = f0;
+    float nf1 = f1;
+    float s0 = (fs / nf1);
+    float s1 = (fs / nf0);
+    float power0 = log(s0) / log(base);
+    float power1 = log(s1) / log(base);
+    float dpower = power1 - power0;
 
-//     for (int i = 0; i < fn; i++) {
-//         float power = power0 + (dpower / (fn - 1)) * i;
-//         scales[i] = pow(base, power);
-//     }
-// }
+    for (int i = 0; i < fn; i++) {
+        float power = power0 + (dpower / (fn - 1)) * i;
+        scales[i] = pow(base, power);
+    }
+}
 
 void Scales::calculate_linfreq_array(float four_wavl, int fs, float f0, float f1, int fn) {
     float nf0 = f0;
@@ -158,18 +139,18 @@ void Scales::calculate_linfreq_array(float four_wavl, int fs, float f0, float f1
     }
 }
 
-// void Scales::calculate_linscale_array(float four_wavl, int fs, float f0, float f1, int fn) {
-//     float nf0 = f0;
-//     float nf1 = f1;
-//     // If a signal has fs=100hz and you want to measure [0.1-50]Hz, you need scales 2 to 1000;
-//     float s0 = fs / nf1;
-//     float s1 = fs / nf0;
-//     float ds = s1 - s0;
+void Scales::calculate_linscale_array(float four_wavl, int fs, float f0, float f1, int fn) {
+    float nf0 = f0;
+    float nf1 = f1;
+    // If a signal has fs=100hz and you want to measure [0.1-50]Hz, you need scales 2 to 1000;
+    float s0 = fs / nf1;
+    float s1 = fs / nf0;
+    float ds = s1 - s0;
 
-//     for (int i = 0; i < fn; i++) {
-//         scales[i] = (s0 + (ds / fn) * i);
-//     }
-// }
+    for (int i = 0; i < fn; i++) {
+        scales[i] = (s0 + (ds / fn) * i);
+    }
+}
 
 //=============================================================//
 //================== FCWT =====================================//
@@ -206,10 +187,10 @@ void FCWT::convolve(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float
     if (lastscale) {
         // Allocate aligned memory for lastscalemem using pvPortMalloc
         float32_t *lastscalemem = (float32_t*)pvPortMalloc(newsize * sizeof(float32_t) * 2); // Allocate space for complex numbers (real and imaginary)
-        if (lastscalemem == nullptr) {
-            printf("Memory allocation failed for lastscalemem\n");
-            return;
-        }
+        // if (lastscalemem == nullptr) {
+        //     printf("Memory allocation failed for lastscalemem\n");
+        //     return;
+        // }
         memset(lastscalemem, 0, sizeof(float32_t) * newsize * 2); // Zero initialize
 
         // Perform the FFT-based operation
@@ -222,10 +203,10 @@ void FCWT::convolve(arm_cfft_instance_f32 &cfft_instance, float32_t *Ihat, float
         memcpy(out, lastscalemem, sizeof(float32_t) * size * 2); // Copy real and imaginary parts
         vPortFree(lastscalemem); // Free the allocated memory
     } else {
-        if (!out) {
-            printf("OUT NOT A POINTER\n");
-            return;
-        }
+        // if (!out) {
+        //     printf("OUT NOT A POINTER\n");
+        //     return;
+        // }
 
         // Perform the FFT-based operation directly in the output buffer
         fftbased(cfft_instance, Ihat, O1, out, wav->mother, newsize, scale, wav->imag_frequency, wav->doublesided);

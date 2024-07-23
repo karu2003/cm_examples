@@ -31,10 +31,9 @@ include_directories(${CMSIS_PRIVAT_PATH})
 # add_definitions(-DAVX)
 
 set(CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb")
+    "${CMAKE_C_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Os -g0")
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb"
-)
+    "${CMAKE_CXX_FLAGS} -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Os -g0")
 
 add_executable_m7(fCWT arm_fCWT.cc fcwt.cc)
 
