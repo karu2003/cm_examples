@@ -85,16 +85,16 @@ void cwt(const float32_t* signal, int signal_length, const float32_t* scales, in
     int output_length = signal_length * 2 - 1;
     float32_t* wavelet = new float32_t[signal_length];
     float32_t* temp_output = new float32_t[output_length];
+    
 
     for (int i = 0; i < num_scales; i++) {
         float32_t scale = scales[i];
-        // Генерация вейвлета для текущего масштаба
-        morletWavelet(scale, wavelet, signal_length);
 
-        // Выполнение свёртки
+        morletWavelet(scale, wavelet, signal_length);
+        memset(temp_output, 0, output_length * sizeof(float32_t));
+
         arm_conv_f32(signal, signal_length, wavelet, signal_length, temp_output);
 
-        // Копирование результата свёртки в выходной массив
         for (int j = 0; j < output_length; j++) {
             output[i * output_length + j] = temp_output[j];
         }

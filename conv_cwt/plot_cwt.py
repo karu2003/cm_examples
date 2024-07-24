@@ -10,6 +10,25 @@ def threshold_2Darray(in_array, threshold):
     return in_array
 
 
+# def normalize_data(data):
+#     data_min = np.min(data)
+#     data_max = np.max(data)
+#     return (data - data_min) / (data_max - data_min)
+
+def normalize_data(data):
+    # Заменяем NaN на 0
+    data = np.nan_to_num(data, nan=0.0)
+    data_min = np.min(data)
+    data_max = np.max(data)
+    return (data - data_min) / (data_max - data_min)
+
+
+# def normalize_data(data):
+#     data_min = np.min(data)
+#     data_max = np.max(data)
+#     return 2 * (data - data_min) / (data_max - data_min) - 1
+
+
 current_path = os.getcwd()
 directory_path = "conv_cwt/"
 file = current_path + "/" + directory_path + "cwt.txt"
@@ -19,9 +38,17 @@ with open(file, "r") as fl:
     params = first_line.split()
     n, fn, f0, f1 = map(float, params)
 
-num_frequencies = int(2 * int(n)- 1)
+num_frequencies = int(2 * int(n) - 1)
 
 data = np.loadtxt(file, dtype=np.float32, skiprows=1)
+
+# data = (data - data.min()) / (data.max() - data.min())
+# print(data)
+
+data = normalize_data(data)
+
+# print(data)
+
 
 if data.size % num_frequencies != 0:
     raise ValueError(f"Размер данных должен делиться на {num_frequencies} без остатка")
