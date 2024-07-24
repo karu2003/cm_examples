@@ -18,14 +18,18 @@ message(STATUS "Python3_EXECUTABLE: ${Python3_EXECUTABLE}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_custom_command(
-  PRE_BUILD
-  OUTPUT "test_signal.h"
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test_signal.h"
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_signal.py"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test_signal.py"
   COMMENT "Generating test_signal.h using Python script")
+
+add_custom_target(generate_test_signal_h
+                  DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test_signal.h")
 
 add_executable_m7(mic_kissfft mic_kissfft.cc ../lib/kissfft/kiss_fft.c
                   ../lib/kissfft/kiss_fftr.c ../lib/hamming/hamming.cpp)
 
+add_dependencies(mic_kissfft generate_test_signal_h)
 target_link_libraries(mic_kissfft libs_base-m7_freertos)
 
 include_directories("../lib/kissfft")

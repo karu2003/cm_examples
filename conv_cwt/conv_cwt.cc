@@ -51,8 +51,8 @@ void measure_function_time(std::function<void()> func) {
     // printf("Cycle count: %u \n\r", cycle_count);
 }
 
-#define SIGNAL_LENGTH 500  // Длина сигнала
-#define SCALES 20          // Количество масштабов
+#define SIGNAL_LENGTH 1000
+#define SCALES 20
 #define PI 3.14159265358979
 
 void Chirp_One(float* output_signal, float start_freq, float end_freq, int num_points, float sampling_rate) {
@@ -92,43 +92,39 @@ void cwt(float32_t* signal, int signal_length, float32_t* scales, int scales_len
         float32_t scale = scales[i];
         float32_t wavelet[SIGNAL_LENGTH];
         morletWavelet(scale, wavelet, signal_length);
-
-        // Свертка сигнала с вейвлетом
         arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * output_length);
     }
 }
-
-// void printCWTResults(float32_t* cwtResults, int scales, int length, float f0, float f1) {
-//     printf("%d %d %d %d\n", length, scales, (int)f0, (int)f1);
-//     for (int i = 0; i < scales; i++) {
-//         // printf("Scale %d:\n", i);
-//         for (int j = 0; j < length; j++) {
-//             printf("%f\n", cwtResults[i * length + j]);
-//         }
-//         // printf("\n");
-//     }
-// }
 
 void printCWTResults(float32_t* cwtResults, int scales, int length, float f0, float f1) {
     printf("%d %d %d %d\n", length, scales, (int)f0, (int)f1);
     int output_length = 2 * length - 1;
     for (int i = 0; i < scales; i++) {
-        printf("Scale %d:\n", i);
+        // printf("Scale %d:\n", i);
         for (int j = 0; j < output_length; j++) {
-            printf("%f ", cwtResults[i * output_length + j]);
+            printf("%f\n", cwtResults[i * output_length + j]);
         }
-        printf("\n");
+        // printf("\n");
+    }
+}
+
+void printCSV(float* cwtResult, int scales, int signal_length, float freq_min, float freq_max) {
+    printf("Scale,Frequency,Value\n");
+    for (int i = 0; i < scales; ++i) {
+        for (int j = 0; j < signal_length; ++j) {
+            float frequency = freq_min + (freq_max - freq_min) * i / (scales - 1);
+            printf("%d,%f,%f\n", i, frequency, cwtResult[i * signal_length + j]);
+        }
     }
 }
 
 extern "C" [[noreturn]] void app_main(void* param) {
-    float32_t freq_min = 7000.0f;   // Минимальная частота в Гц
-    float32_t freq_max = 17000.0f;  // Максимальная частота в Гц
-    float32_t f_c = 0.849f;         // Центральная частота вейвлета Морле
+    float32_t freq_min = 3400.0f;
+    float32_t freq_max = 34000.0f;
+    float32_t f_c = 0.849f;
 
     // uint64_t lastMicros_cmsis;
     float32_t signal[SIGNAL_LENGTH];
-    // float32_t cwtResult[SCALES][SIGNAL_LENGTH];
     const int fs = 192000;
     const float fstart = 7000;
     const float fend = 17000;
@@ -136,31 +132,20 @@ extern "C" [[noreturn]] void app_main(void* param) {
     float32_t* scales = (float32_t*)pvPortMalloc(SCALES * sizeof(float32_t));
     if (scales == NULL) {
         printf("Memory allocation for scales failed!\n");
-        vTaskSuspend(NULL);  // Останавливаем задачу, если не удалось выделить память
+        vTaskSuspend(NULL);
     }
 
-    // for (int i = 0; i < SCALES; i++) {
-    //     scales[i] = 1.0f + (float32_t)i / 2.0f;
-    // }
-
-    // Заполнение массива масштабов
     for (int i = 0; i < SCALES; i++) {
         float32_t freq = freq_min + i * (freq_max - freq_min) / (SCALES - 1);
         scales[i] = f_c / freq;
     }
 
-    // printf("Scales:\n");
-    // for (int i = 0; i < SCALES; i++) {
-    //     printf("%f\n", scales[i]);
-    // }
-
     int output_length = 2 * SIGNAL_LENGTH - 1;
 
-    // Выделение памяти под результаты CWT
     float32_t* cwtResult = (float32_t*)pvPortMalloc(SCALES * output_length * sizeof(float32_t));
     if (cwtResult == NULL) {
         printf("Memory allocation for CWT results failed!\n");
-        vTaskSuspend(NULL);  // Останавливаем задачу, если не удалось выделить память
+        vTaskSuspend(NULL);
     }
 
     Chirp_One(signal, fstart, fend, SIGNAL_LENGTH, fs);
@@ -178,13 +163,13 @@ extern "C" [[noreturn]] void app_main(void* param) {
         // for (int i = 0; i < SIGNAL_LENGTH; i++) {
         //     printf("%f\n", signal[i]);
         // }
-        cwt(signal, SIGNAL_LENGTH, scales, SCALES, cwtResult);
-        printf("CWT done\n");
-        // plotCWT(cwtResult, SIGNAL_LENGTH, SCALES, fstart, fend);
-        printCWTResults(cwtResult, SCALES, SIGNAL_LENGTH, fstart, fend);
+        // cwt(signal, SIGNAL_LENGTH, scales, SCALES, cwtResult);
+        // printf("CWT done\n");
+        // printCWTResults(cwtResult, SCALES, SIGNAL_LENGTH, freq_min, freq_max);
+        // printCSV(cwtResult, SCALES, SIGNAL_LENGTH, freq_min, freq_max);
 
         // printf("CMSIS convolution duration: ");
-        // measure_function_time([&]() { cmsis_convolution(srcA, srcALen, srcB, srcBLen, result_cmsis); });
+        measure_function_time([&]() { cwt(signal, SIGNAL_LENGTH, scales, SCALES, cwtResult); });
     }
     vPortFree(scales);
     vPortFree(cwtResult);
