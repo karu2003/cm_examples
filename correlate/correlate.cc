@@ -138,7 +138,7 @@ extern "C" [[noreturn]] void app_main(void* param) {
         /*debounce_interval_us=*/50 * 1e3);
 
     Chirp_One(srcA, start_freq, end_freq, size, sampling_rate, amplitude);
-    Chirp_One(srcB, start_freq, end_freq, size, sampling_rate, amplitude);
+    Chirp_One(srcB, start_freq, end_freq, size, sampling_rate, amplitude/2);
 
     printf("Starting ARM Correlation\n\r");
     printf("Press the user button to start the Correlation\n\r");
@@ -147,7 +147,7 @@ extern "C" [[noreturn]] void app_main(void* param) {
         vTaskSuspend(nullptr);
 
         // printf("Correlation duration: ");
-        // arm_correlate_f32(srcA, size, srcB, size, result);
+        arm_correlate_f32(srcA, size, srcB, size, result);
         // cross_correlate(srcA, srcB, result, size);
 
         // float correlationCoefficient = CalculateCorrelationCoefficient(srcA, srcB, size);
@@ -160,9 +160,9 @@ extern "C" [[noreturn]] void app_main(void* param) {
         // printf("Correlation Coefficient: %f\n", correlationCoefficient);
 
         // printf Correlation
-        // for (i = 0; i < 2 * size - 1; i++) {
-        //     printf("%f\n", result[i]);
-        // }
+        for (i = 0; i < 2 * size - 1; i++) {
+            printf("%f\n", result[i]);
+        }
         measure_function_time([&]() { arm_correlate_f32(srcA, size, srcB, size, result); });
         measure_function_time([&]() { cross_correlate(srcA, srcB, result, size); });
     }
