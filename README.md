@@ -69,3 +69,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
 sudo make install
 
 sudo apt-get install pybind11-dev
+
+### reference and useful links
+
+https://www.sikorskiy.net/info/prj/amap/
