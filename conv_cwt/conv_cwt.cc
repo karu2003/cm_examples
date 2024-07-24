@@ -64,36 +64,44 @@ void Chirp_One(float* output_signal, float start_freq, float end_freq, int num_p
     }
 }
 
-void morletWavelet(float32_t scale, float32_t* output, int length) {
-    for (int t = 0; t < length; t++) {
+void morletWavelet(float32_t scale, float32_t* output, int signal_length) {
+    for (int t = 0; t < signal_length; t++) {
         float32_t tau = (float32_t)t / scale;
         output[t] = expf(-0.5f * tau * tau) * cosf(5 * tau);
     }
 }
 
 // void cwt(float32_t* signal, int signal_length, float32_t* scales, int scales_length, float32_t* output) {
+//     int output_length = 2 * signal_length - 1;
 //     for (int i = 0; i < scales_length; i++) {
 //         float32_t scale = scales[i];
 //         float32_t wavelet[SIGNAL_LENGTH];
 //         morletWavelet(scale, wavelet, signal_length);
-//         // printf("Scale %f:\n", scale);
-//         // for (int j = 0; j < signal_length; j++) {
-//         //     printf("%f\n", wavelet[j]);
-//         //     // vTaskDelay(pdMS_TO_TICKS(8));
-//         // }
-
-//         arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * signal_length);
+//         arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * output_length);
 //     }
 // }
 
-void cwt(float32_t* signal, int signal_length, float32_t* scales, int scales_length, float32_t* output) {
-    int output_length = 2 * signal_length - 1;
-    for (int i = 0; i < scales_length; i++) {
+void cwt(const float32_t* signal, int signal_length, const float32_t* scales, int num_scales, float32_t* output) {
+    int output_length = signal_length * 2 - 1;
+    float32_t* wavelet = new float32_t[signal_length];
+    float32_t* temp_output = new float32_t[output_length];
+
+    for (int i = 0; i < num_scales; i++) {
         float32_t scale = scales[i];
-        float32_t wavelet[SIGNAL_LENGTH];
+        // Генерация вейвлета для текущего масштаба
         morletWavelet(scale, wavelet, signal_length);
-        arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * output_length);
+
+        // Выполнение свёртки
+        arm_conv_f32(signal, signal_length, wavelet, signal_length, temp_output);
+
+        // Копирование результата свёртки в выходной массив
+        for (int j = 0; j < output_length; j++) {
+            output[i * output_length + j] = temp_output[j];
+        }
     }
+
+    delete[] wavelet;
+    delete[] temp_output;
 }
 
 void printCWTResults(float32_t* cwtResults, int scales, int length, float f0, float f1) {
@@ -165,11 +173,11 @@ extern "C" [[noreturn]] void app_main(void* param) {
         // }
         // cwt(signal, SIGNAL_LENGTH, scales, SCALES, cwtResult);
         // printf("CWT done\n");
-        // printCWTResults(cwtResult, SCALES, SIGNAL_LENGTH, freq_min, freq_max);
+        printCWTResults(cwtResult, SCALES, SIGNAL_LENGTH, freq_min, freq_max);
         // printCSV(cwtResult, SCALES, SIGNAL_LENGTH, freq_min, freq_max);
 
         // printf("CMSIS convolution duration: ");
-        measure_function_time([&]() { cwt(signal, SIGNAL_LENGTH, scales, SCALES, cwtResult); });
+        // measure_function_time([&]() { cwt(signal, SIGNAL_LENGTH, scales, SCALES, cwtResult); });
     }
     vPortFree(scales);
     vPortFree(cwtResult);
