@@ -47,6 +47,6 @@ if(NOT CMSIS_DSP_SOURCES)
   message(FATAL_ERROR "No CMSIS DSP sources found")
 endif()
 
-target_link_libraries(arm_fft libs_base-m7_freertos CMSISDSP)
+target_link_libraries(arm_fft libs_base-m7_nocam_freertos CMSISDSP)
 
 include_directories("../lib/hamming")

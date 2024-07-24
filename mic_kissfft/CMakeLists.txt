@@ -30,7 +30,7 @@ add_executable_m7(mic_kissfft mic_kissfft.cc ../lib/kissfft/kiss_fft.c
                   ../lib/kissfft/kiss_fftr.c ../lib/hamming/hamming.cpp)
 
 add_dependencies(mic_kissfft generate_test_signal_h)
-target_link_libraries(mic_kissfft libs_base-m7_freertos)
+target_link_libraries(mic_kissfft libs_base-m7_nocam_freertos)
 
 include_directories("../lib/kissfft")
 include_directories("../lib/hamming")

@@ -17,7 +17,7 @@ add_definitions(-DPFFFT_SIMD_DISABLE)
 add_executable_m7(pffft pffft.cc ../lib/pffft/pffft.c
                   ../lib/hamming/hamming.cpp)
 
-target_link_libraries(pffft libs_base-m7_freertos)
+target_link_libraries(pffft libs_base-m7_nocam_freertos)
 
 include_directories("../lib/pffft")
 include_directories("../lib/hamming")
