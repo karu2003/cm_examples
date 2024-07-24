@@ -31,5 +31,6 @@ add_subdirectory(convolution)
 add_subdirectory(xCount)
 add_subdirectory(arm_fCWT)
 add_subdirectory(arm_cfft)
+add_subdirectory(conv_cwt)
 
 
