@@ -71,61 +71,55 @@ void morletWavelet(float32_t scale, float32_t* output, int length) {
     }
 }
 
-// void morletWavelet(float32_t scale, float32_t* output, int length) {
-//     for (int t = 0; t < length; t++) {
-//         float32_t tau = (float32_t)t / scale;
-//         output[t] = expf(-0.5f * tau * tau) * cosf(5 * tau);
-//     }
-// }
-
-void cwt(float32_t* signal, int signal_length, float32_t* scales, int scales_length, float32_t* output) {
-    for (int i = 0; i < scales_length; i++) {
-        float32_t scale = scales[i];
-        float32_t wavelet[SIGNAL_LENGTH];
-        morletWavelet(scale, wavelet, signal_length);
-        // printf("Scale %f:\n", scale);
-        // for (int j = 0; j < signal_length; j++) {
-        //     printf("%f\n", wavelet[j]);
-        //     // vTaskDelay(pdMS_TO_TICKS(8));
-        // }
-
-        arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * signal_length);
-    }
-}
-
 // void cwt(float32_t* signal, int signal_length, float32_t* scales, int scales_length, float32_t* output) {
-//     int output_length = 2 * signal_length - 1;
 //     for (int i = 0; i < scales_length; i++) {
 //         float32_t scale = scales[i];
 //         float32_t wavelet[SIGNAL_LENGTH];
 //         morletWavelet(scale, wavelet, signal_length);
-        
-//         // Свертка сигнала с вейвлетом
-//         arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * output_length);
+//         // printf("Scale %f:\n", scale);
+//         // for (int j = 0; j < signal_length; j++) {
+//         //     printf("%f\n", wavelet[j]);
+//         //     // vTaskDelay(pdMS_TO_TICKS(8));
+//         // }
+
+//         arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * signal_length);
+//     }
+// }
+
+void cwt(float32_t* signal, int signal_length, float32_t* scales, int scales_length, float32_t* output) {
+    int output_length = 2 * signal_length - 1;
+    for (int i = 0; i < scales_length; i++) {
+        float32_t scale = scales[i];
+        float32_t wavelet[SIGNAL_LENGTH];
+        morletWavelet(scale, wavelet, signal_length);
+
+        // Свертка сигнала с вейвлетом
+        arm_conv_f32(signal, signal_length, wavelet, signal_length, output + i * output_length);
+    }
+}
+
+// void printCWTResults(float32_t* cwtResults, int scales, int length, float f0, float f1) {
+//     printf("%d %d %d %d\n", length, scales, (int)f0, (int)f1);
+//     for (int i = 0; i < scales; i++) {
+//         // printf("Scale %d:\n", i);
+//         for (int j = 0; j < length; j++) {
+//             printf("%f\n", cwtResults[i * length + j]);
+//         }
+//         // printf("\n");
 //     }
 // }
 
 void printCWTResults(float32_t* cwtResults, int scales, int length, float f0, float f1) {
     printf("%d %d %d %d\n", length, scales, (int)f0, (int)f1);
+    int output_length = 2 * length - 1;
     for (int i = 0; i < scales; i++) {
-        // printf("Scale %d:\n", i);
-        for (int j = 0; j < length; j++) {
-            printf("%f\n", cwtResults[i * length + j]);
+        printf("Scale %d:\n", i);
+        for (int j = 0; j < output_length; j++) {
+            printf("%f ", cwtResults[i * output_length + j]);
         }
-        // printf("\n");
+        printf("\n");
     }
 }
-
-// void printCWTResults(float32_t* cwtResults, int scales, int length) {
-//     int output_length = 2 * length - 1;
-//     for (int i = 0; i < scales; i++) {
-//         printf("Scale %d:\n", i);
-//         for (int j = 0; j < output_length; j++) {
-//             printf("%f ", cwtResults[i * output_length + j]);
-//         }
-//         printf("\n");
-//     }
-// }
 
 extern "C" [[noreturn]] void app_main(void* param) {
     float32_t freq_min = 7000.0f;   // Минимальная частота в Гц
@@ -163,7 +157,7 @@ extern "C" [[noreturn]] void app_main(void* param) {
     int output_length = 2 * SIGNAL_LENGTH - 1;
 
     // Выделение памяти под результаты CWT
-    cwtResult = (float32_t*)pvPortMalloc(SCALES * output_length * sizeof(float32_t));
+    float32_t* cwtResult = (float32_t*)pvPortMalloc(SCALES * output_length * sizeof(float32_t));
     if (cwtResult == NULL) {
         printf("Memory allocation for CWT results failed!\n");
         vTaskSuspend(NULL);  // Останавливаем задачу, если не удалось выделить память
