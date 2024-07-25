@@ -17,6 +17,8 @@
 #include <inttypes.h>
 
 #define CPU_CLOCK_HZ (CLOCK_GetFreq(kCLOCK_CpuClk))
+#define IPI4 0.75112554446f
+#define PI 3.14159265358979
 
 namespace coralmicro {
 namespace {
@@ -51,8 +53,6 @@ void measure_function_time(std::function<void()> func) {
     // printf("Cycle count: %u \n\r", cycle_count);
 }
 
-#define PI 3.14159265358979
-
 void Chirp_One(float* output_signal, float start_freq, float end_freq, int num_points, float sampling_rate) {
     float duration = static_cast<float>(num_points - 1) / sampling_rate;
     for (int i = 0; i < num_points; ++i) {
@@ -69,6 +69,64 @@ void morletWavelet(float32_t scale, float32_t* output, uint32_t signal_length) {
     }
 }
 
+void generateMorletWavelet(float32_t* wavelet, uint32_t points, float32_t frequency, float32_t sampleRate) {
+    float32_t sigma = 1.0f / (2.0f * PI * frequency);
+    float32_t t, gaussian, sinusoid;
+    float32_t duration = (float32_t)points / sampleRate;
+    float32_t step = duration / points;
+
+    for (uint32_t n = 0; n < points; n++) {
+        t = n * step;
+        gaussian = expf(-0.5f * powf((t - duration / 2.0f) / sigma, 2.0f));
+        sinusoid = cosf(2.0f * PI * frequency * (t - duration / 2.0f));
+        wavelet[n] = gaussian * sinusoid;
+    }
+}
+
+void generateMorletWaveletWithSigma(float32_t* wavelet, uint32_t points, float32_t frequency, float32_t sigma, float32_t sampleRate) {
+    float32_t t, gaussian, sinusoid;
+    float32_t duration = (float32_t)points / sampleRate;
+    float32_t step = duration / points;
+    float32_t maxAmplitude = 0.0f;
+
+    for (uint32_t n = 0; n < points; n++) {
+        t = n * step;
+        gaussian = expf(-0.5f * powf((t - duration / 2.0f) / sigma, 2.0f));
+        sinusoid = cosf(2.0f * PI * frequency * (t - duration / 2.0f));
+        wavelet[n] = gaussian * sinusoid;
+    }
+}
+
+// void generateMorletWavelet(float32_t* wavelet, uint32_t points, float32_t frequency, float32_t sigma, float32_t sampleRate) {
+//     float32_t t, gaussian, sinusoid;
+//     float32_t duration = (float32_t)points / sampleRate;
+//     float32_t step = duration / points;
+//     float32_t maxAmplitude = 0.0f;
+
+//     // Генерация волны Морле
+//     for (uint32_t n = 0; n < points; n++) {
+//         t = n * step;
+//         gaussian = expf(-0.5f * powf((t - duration / 2.0f) / sigma, 2.0f));
+//         sinusoid = cosf(2.0f * PI * frequency * (t - duration / 2.0f));
+//         wavelet[n] = gaussian * sinusoid;
+//         if (fabs(wavelet[n]) > maxAmplitude) {
+//             maxAmplitude = fabs(wavelet[n]);
+//         }
+//     }
+
+//     // Нормализация волны Морле
+//     for (uint32_t n = 0; n < points; n++) {
+//         wavelet[n] /= maxAmplitude;
+//     }
+// }
+
+void generateFrequencyArray(float32_t* frequency, uint32_t points, float32_t f0, float32_t f1) {
+    float32_t step = (f1 - f0) / (points - 1);
+    for (uint32_t i = 0; i < points; i++) {
+        frequency[i] = f0 + i * step;
+    }
+}
+
 // void cwt(float32_t* signal, int signal_length, float32_t* scales, int scales_length, float32_t* output) {
 //     int output_length = 2 * signal_length - 1;
 //     for (int i = 0; i < scales_length; i++) {
@@ -79,7 +137,8 @@ void morletWavelet(float32_t scale, float32_t* output, uint32_t signal_length) {
 //     }
 // }
 
-void cwt(const float32_t* signal, uint32_t signal_length, const float32_t* scales, uint32_t num_scales, float32_t* output) {
+void cwt(const float32_t* signal, uint32_t signal_length, const float32_t* scales, uint32_t num_scales, float32_t* output, int fs) {
+    float32_t sigma = 2.0f;
     int output_length = signal_length * 2 - 1;
     // float32_t* wavelet = new float32_t[signal_length];
     // float32_t* temp_output = new float32_t[output_length];
@@ -95,19 +154,35 @@ void cwt(const float32_t* signal, uint32_t signal_length, const float32_t* scale
 
     for (int i = 0; i < num_scales; i++) {
         float32_t scale = scales[i];
+        // printf("Scale: %f\n", scale);
 
         morletWavelet(scale, wavelet, signal_length);
+        // generateMorletWavelet(wavelet, signal_length, scale, fs);
+
+        // for (int j = 0; j < signal_length; j++) {
+        //     printf("%f\n", wavelet[j]);
+        // }
+
+        // for (int j = 0; j < signal_length; j++) {
+        //     printf("%f\n", signal[j]);
+        // }
+
         memset(temp_output, 0, output_length * sizeof(float32_t));
 
         arm_conv_f32(signal, signal_length, wavelet, signal_length, temp_output);
 
-        // for (int j = 0; j < output_length; j++) {
+        for (int j = 0; j < signal_length; j++) {
+            // output[i * signal_length + j] = temp_output[j];
+            printf("%f,%f\n", wavelet[j], temp_output[j]);
+        }
+
+        // // for (int j = 0; j < output_length; j++) {
+        // //     output[i * output_length + j] = temp_output[j];
+        // // }
+
+        // for (int j = 0; j < signal_length; j++) {
         //     output[i * output_length + j] = temp_output[j];
         // }
-
-        for (int j = 0; j < signal_length; j++) {
-            output[i * output_length + j] = temp_output[j];
-        }
     }
 
     // delete[] wavelet;
@@ -147,15 +222,16 @@ extern "C" [[noreturn]] void app_main(void* param) {
     float32_t freq_min = 3400.0f;
     float32_t freq_max = 34000.0f;
     float32_t f_c = 0.849f;
+    float fb = 2.0f;
 
     // uint64_t lastMicros_cmsis;
-    uint32_t size = 1024;
+    uint32_t signal_size = 1024;
     uint32_t scale = 20;
     const int fs = 192000;
     const float fstart = 7000;
     const float fend = 17000;
 
-    float32_t* signal = (float32_t*)pvPortMalloc(size * sizeof(float32_t));
+    float32_t* signal = (float32_t*)pvPortMalloc(signal_size * sizeof(float32_t));
 
     GpioConfigureInterrupt(
         Gpio::kUserButton, GpioInterruptMode::kIntModeFalling,
@@ -173,11 +249,13 @@ extern "C" [[noreturn]] void app_main(void* param) {
         scales[i] = f_c / freq;
     }
 
-    Chirp_One(signal, fstart, fend, size, fs);
+    // generateFrequencyArray(scales, scale, freq_min, freq_max);
+
+    // Chirp_One(signal, fstart, fend, size, fs);
 
     // int output_length = 2 * SIGNAL_LENGTH - 1;
     // float32_t* cwtResult = (float32_t*)pvPortMalloc(SCALES * output_length * sizeof(float32_t));
-    float32_t* cwtResult = (float32_t*)pvPortMalloc(scale * size * sizeof(float32_t));
+    float32_t* cwtResult = (float32_t*)pvPortMalloc(scale * signal_size * sizeof(float32_t));
     if (cwtResult == NULL) {
         printf("Memory allocation for CWT results failed!\n");
         vTaskSuspend(NULL);
@@ -186,13 +264,17 @@ extern "C" [[noreturn]] void app_main(void* param) {
     printf("Starting ARM Conv CWT\n\r");
     printf("Press the user button to start the CWT\n\r");
 
+    // for (int i = 0; i < scale; i++) {
+    //     printf("%f\n", scales[i]);
+    // }
+
     while (true) {
         vTaskSuspend(nullptr);
-        // for (int i = 0; i < SIGNAL_LENGTH; i++) {
+        // for (int i = 0; i < signal_size; i++) {
         //     printf("%f\n", signal[i]);
         // }
-        cwt(signal, size, scales, scale, cwtResult);
-        printf("CWT done\n");
+        cwt(signal, signal_size, scales, scale, cwtResult, fs);
+        // printf("CWT done\n");
         // printCWTResults(cwtResult, SCALES, SIGNAL_LENGTH, freq_min, freq_max);
         // printCSV(cwtResult, SCALES, SIGNAL_LENGTH, freq_min, freq_max);
 
