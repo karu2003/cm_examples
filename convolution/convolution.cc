@@ -103,14 +103,39 @@ void generate_triangle_wave(float32_t* array, uint32_t size) {
     }
 }
 
-void generate_square_wave(float32_t* array, uint32_t size) {
+void generate_square_wave(std::vector<float>& signal, float frequency, float sample_rate, float duration, float duty_cycle) {
+    int total_samples = static_cast<int>(duration * sample_rate);
+    signal.resize(total_samples);
+
+    int samples_per_period = static_cast<int>(sample_rate / frequency);
+    int high_samples = static_cast<int>(samples_per_period * duty_cycle);
+    int low_samples = samples_per_period - high_samples;
+
+    for (int i = 0; i < total_samples; ++i) {
+        int position_in_period = i % samples_per_period;
+        if (position_in_period < high_samples) {
+            signal[i] = 1.0f;  // Высокое состояние
+        } else {
+            signal[i] = -1.0f;  // Низкое состояние
+        }
+    }
+}
+
+void generate_square_wave(float32_t* array, uint32_t size, float duty_cycle) {
     for (uint32_t i = 0; i < size; ++i) {
-        if (i < size / 2) {
+        if (i < size * duty_cycle) {
             array[i] = 1.0f;  // Первая половина массива заполняется 1
         } else {
             array[i] = 0.0f;  // Вторая половина массива заполняется 0
         }
     }
+    // for (uint32_t i = 0; i < size; ++i) {
+    //     if (i < size / 2) {
+    //         array[i] = 1.0f;  // Первая половина массива заполняется 1
+    //     } else {
+    //         array[i] = 0.0f;  // Вторая половина массива заполняется 0
+    //     }
+    // }
 }
 
 extern "C" [[noreturn]] void app_main(void* param) {
@@ -141,16 +166,18 @@ extern "C" [[noreturn]] void app_main(void* param) {
         vTaskDelete(nullptr);
     }
 
-    generate_triangle_wave(srcA, size);
-    generate_square_wave(srcB, size);
+    // generate_triangle_wave(srcA, size);
+    generate_square_wave(srcA, size, 0.5f);
+    generate_square_wave(srcB, size, 0.5f);
 
     // Размеры массивов
     uint32_t srcALen = size;
     uint32_t srcBLen = size;
 
     // Результирующие массивы (длина = srcALen + srcBLen - 1)
-    float32_t result_manual[size * 2 - 1];
-    float32_t result_cmsis[size * 2 - 1];
+    uint32_t cmsis_size = size * 2 - 1;
+    float32_t result_manual[cmsis_size];
+    float32_t result_cmsis[cmsis_size];
 
     printf("Starting ARM Convolution\n\r");
     printf("Press the user button to start the convolution\n\r");
@@ -162,8 +189,11 @@ extern "C" [[noreturn]] void app_main(void* param) {
         measure_function_time([&]() { manual_convolution(srcA, srcALen, srcB, srcBLen, result_manual); });
         printf("CMSIS convolution duration: ");
         measure_function_time([&]() { cmsis_convolution(srcA, srcALen, srcB, srcBLen, result_cmsis); });
-        for (uint32_t i = 0; i < size - 1; i++) {  // 2 * size - 1
-            printf("%f,%f,%f,%f\n", srcA[i], srcB[i], result_manual[i], result_cmsis[i]);
+        // for (uint32_t i = 0; i < size - 1; i++) {  // 2 * size - 1
+        //     printf("%f,%f,%f,%f\n", srcA[i], srcB[i], result_manual[i], result_cmsis[i]);
+        // }
+        for (uint32_t i = 0; i < cmsis_size; i++) {  // 2 * size - 1
+            printf("%d,%f\n", i, result_cmsis[i]);
         }
     }
 }
