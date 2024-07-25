@@ -96,6 +96,23 @@ __attribute__((optimize("O0"))) void add_nops(int k) {
     }
 }
 
+void generate_triangle_wave(float32_t* array, uint32_t size) {
+    for (uint32_t i = 0; i < size; ++i) {
+        float t = static_cast<float>(i) / (size - 1);  // Нормализуем индекс
+        array[i] = 1.0f - fabs(2.0f * t - 1.0f);       // Генерация треугольного сигнала
+    }
+}
+
+void generate_square_wave(float32_t* array, uint32_t size) {
+    for (uint32_t i = 0; i < size; ++i) {
+        if (i < size / 2) {
+            array[i] = 1.0f;  // Первая половина массива заполняется 1
+        } else {
+            array[i] = 0.0f;  // Вторая половина массива заполняется 0
+        }
+    }
+}
+
 extern "C" [[noreturn]] void app_main(void* param) {
     // uint32_t duration_cmsis = 0;
     // uint32_t duration_manual = 0;
@@ -124,6 +141,9 @@ extern "C" [[noreturn]] void app_main(void* param) {
         vTaskDelete(nullptr);
     }
 
+    generate_triangle_wave(srcA, size);
+    generate_square_wave(srcB, size);
+
     // Размеры массивов
     uint32_t srcALen = size;
     uint32_t srcBLen = size;
@@ -142,6 +162,9 @@ extern "C" [[noreturn]] void app_main(void* param) {
         measure_function_time([&]() { manual_convolution(srcA, srcALen, srcB, srcBLen, result_manual); });
         printf("CMSIS convolution duration: ");
         measure_function_time([&]() { cmsis_convolution(srcA, srcALen, srcB, srcBLen, result_cmsis); });
+        for (uint32_t i = 0; i < size - 1; i++) {  // 2 * size - 1
+            printf("%f,%f,%f,%f\n", srcA[i], srcB[i], result_manual[i], result_cmsis[i]);
+        }
     }
 }
 }  // namespace
