@@ -1,4 +1,9 @@
 
+// calculation time fCWT ~ 4ms. 192000 samples, 1000 points, 20 scales
+// signal chirp 7000-17000 Hz
+// 20 scales from 3400 to 34000 Hz
+// tested on Cortex M7 under FreeRTOS in one task
+
 // #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +46,6 @@ static inline uint32_t dwt_get_cycles(void) {
 }
 
 // Функция для измерения времени выполнения
-// void measure_function_time(void (*func)(void)) {
 void measure_function_time(std::function<void()> func) {
     dwt_init();                                // Инициализация DWT
     uint32_t start_cycles = dwt_get_cycles();  // Стартовое значение циклового счетчика
@@ -70,18 +74,16 @@ void Chirp_One(float* output_signal, float start_freq, float end_freq, int num_p
     }
 }
 
-// void printTFM(std::complex<float>* tfm, int n, int fn, float f0, float f1) {
-//     printf("%d %d %d %d\n", n, fn, (int)f0, (int)f1);
-
-//     int totalLength = n * fn;
-//     for (int i = 0; i < totalLength; ++i) {
-//         printf("%f,%f\n", tfm[i].real(), tfm[i].imag());
-//     }
-// }
+void printTFM(std::complex<float>* tfm, int n, int fn, float f0, float f1) {
+    printf("%d %d %d %d\n", n, fn, (int)f0, (int)f1);
+    int totalLength = n * fn;
+    for (int i = 0; i < totalLength; ++i) {
+        printf("%f,%f\n", tfm[i].real(), tfm[i].imag());
+    }
+}
 
 void plotTFM(std::complex<float>* tfm, int n, int fn, float f0, float f1) {
     printf("§%d %d %d %d\n", n, fn, (int)f0, (int)f1);
-
     int totalLength = n * fn;
     for (int i = 0; i < totalLength; ++i) {
         printf("%f,%f\n", tfm[i].real(), tfm[i].imag());
@@ -146,15 +148,12 @@ extern "C" [[noreturn]] void app_main(void* param) {
         } else {
             Chirp_One(sig, fend, fstart, n, fs);
         }
-
         // lastMicros = TimerMicros();
-        fcwt.cwt(&sig[0], n, &tfm[0], &scs);
+        // fcwt.cwt(&sig[0], n, &tfm[0], &scs);
         // lastMicros = TimerMicros() - lastMicros;
         // printf("calculation time: %lu uS\n\r", static_cast<uint32_t>(lastMicros));
-
-        // measure_function_time([&]() { fcwt.cwt(&sig[0], n, &tfm[0], &scs); });
-        plotTFM(tfm, n, fn, f0, f1);
-
+        measure_function_time([&]() { fcwt.cwt(&sig[0], n, &tfm[0], &scs); });
+        // plotTFM(tfm, n, fn, f0, f1);
         // printTFM(tfm, n, fn, f0, f1);
     }
     delete[] sig;

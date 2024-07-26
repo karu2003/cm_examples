@@ -10,7 +10,9 @@ from matplotlib.colors import LinearSegmentedColormap
 port = "/dev/ttyUSB0"
 port = "/dev/ttyACM0"
 baudrate = 115200
-# baudrate = 230400
+baudrate = 250000
+baudrate = 500000
+baudrate = 1000000
 
 def read_parameters_and_data(ser):
     parameters = None
