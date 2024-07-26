@@ -17,6 +17,8 @@ add_subdirectory(coralmicro)
 
 include_directories(lib/base)
 add_subdirectory(lib/base)
+add_subdirectory(lib/m7_DSP)
+# add_subdirectory(lib/arm_fCWT)
 
 add_subdirectory(audio_scoppy)
 add_subdirectory(dac_out)
